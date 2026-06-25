@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Independence Gamble</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: #333;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    #app {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .header h1 {
+      font-size: 24px;
+      color: #1e3c72;
+    }
+    
+    .header-meta {
+      text-align: right;
+      font-size: 14px;
+      color: #666;
+    }
+    
+    .header-meta div {
+      margin: 4px 0;
+    }
+    
+    .round-badge {
+      background: #2a5298;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    
+    .team-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    @media (max-width: 1024px) {
+      .team-container {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .team-panel {
+      background: white;
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .team-panel h2 {
+      font-size: 20px;
+      margin-bottom: 16px;
+      color: #1e3c72;
+    }
+    
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .kpi-card {
+      background: #f5f5f5;
+      padding: 12px;
+      border-radius: 6px;
+      border-left: 4px solid #2a5298;
+    }
+    
+    .kpi-name {
+      font-size: 12px;
+      font-weight: bold;
+      color: #666;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+    
+    .kpi-value {
+      font-size: 28px;
+      font-weight: bold;
+      color: #1e3c72;
+    }
+    
+    .kpi-bar {
+      width: 100%;
+      height: 6px;
+      background: #ddd;
+      border-radius: 3px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    
+    .kpi-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #2a5298, #4a7ba7);
+      border-radius: 3px;
+    }
+    
+    .decision-section {
+      margin-top: 24px;
+      border-top: 1px solid #eee;
+      padding-top: 24px;
+    }
+    
+    .decision-section h3 {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+    
+    .scenario-toggle {
+      margin-bottom: 16px;
+    }
+    
+    .scenario-toggle button {
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #1e3c72;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+    
+    .scenario-toggle button:hover {
+      background: #e8e8e8;
+    }
+    
+    .scenario-toggle button.active {
+      background: #2a5298;
+      color: white;
+      border-color: #2a5298;
+    }
+    
+    .scenario-content {
+      background: #f9f9f9;
+      padding: 16px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    
+    .scenario-content.visible {
+      display: block;
+    }
+    
+    .scenario-content h4 {
+      font-size: 14px;
+      color: #1e3c72;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    
+    .scenario-content p {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    
+    .forces-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 12px;
+    }
+    
+    .force-item {
+      background: white;
+      padding: 8px;
+      border-radius: 4px;
+      border-left: 3px solid #2a5298;
+    }
+    
+    .force-name {
+      font-weight: bold;
+      color: #1e3c72;
+    }
+    
+    .force-value {
+      color: #666;
+      font-size: 11px;
+    }
+    
+    .decision-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    
+    .decision-btn {
+      background: white;
+      border: 2px solid #2a5298;
+      padding: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: bold;
+      color: #1e3c72;
+      transition: all 0.2s;
+      text-align: left;
+    }
+    
+    .decision-btn:hover {
+      background: #f5f5f5;
+    }
+    
+    .decision-btn.selected {
+      background: #2a5298;
+      color: white;
+    }
+    
+    .decision-btn strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+    
+    .decision-btn small {
+      font-size: 11px;
+      opacity: 0.8;
+    }
+    
+    .submit-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #2a5298, #4a7ba7);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(42, 82, 152, 0.3);
+    }
+    
+    .submit-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .trainer-container {
+      background: white;
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .trainer-header {
+      margin-bottom: 24px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 16px;
+    }
+    
+    .trainer-header h2 {
+      font-size: 20px;
+      color: #1e3c72;
+      margin-bottom: 12px;
+    }
+    
+    .trainer-controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    
+    .trainer-btn {
+      background: #2a5298;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+    
+    .trainer-btn:hover {
+      background: #1e3c72;
+    }
+    
+    .trainer-btn.secondary {
+      background: #ddd;
+      color: #333;
+    }
+    
+    .trainer-btn.secondary:hover {
+      background: #ccc;
+    }
+    
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 24px;
+    }
+    
+    .team-summary {
+      background: #f9f9f9;
+      padding: 16px;
+      border-radius: 6px;
+    }
+    
+    .team-summary h3 {
+      color: #1e3c72;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+    
+    .summary-kpi {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 13px;
+    }
+    
+    .summary-kpi:last-child {
+      border-bottom: none;
+    }
+    
+    .summary-kpi-value {
+      font-weight: bold;
+      color: #2a5298;
+    }
+    
+    .scenario-reveal {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 6px;
+      padding: 16px;
+      margin-top: 24px;
+    }
+    
+    .scenario-reveal h3 {
+      color: #856404;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+    
+    .forces-display {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+      font-size: 12px;
+    }
+    
+    .force-badge {
+      background: white;
+      padding: 8px;
+      border-radius: 4px;
+      text-align: center;
+      border: 1px solid #ffc107;
+    }
+    
+    .force-badge strong {
+      display: block;
+      color: #856404;
+      font-size: 11px;
+    }
+    
+    .force-badge .value {
+      font-size: 16px;
+      color: #1e3c72;
+      font-weight: bold;
+    }
+    
+    .status-message {
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+    
+    .status-message.waiting {
+      background: #d1ecf1;
+      border: 1px solid #bee5eb;
+      color: #0c5460;
+    }
+    
+    .status-message.submitted {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+    
+    .status-message.error {
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+    
+    .waiting-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: #0c5460;
+      border-radius: 50%;
+      margin-right: 6px;
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        gap: 12px;
+      }
+      
+      .decision-buttons {
+        grid-template-columns: 1fr;
+      }
+      
+      .forces-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .comparison-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .forces-display {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    const { createApp, ref, computed, reactive } = Vue;
+
+    const app = createApp({
+      template: `
+        <div class="header">
+          <div>
+            <h1>{{ gameTitle }}</h1>
+            <p style="color: #666; font-size: 13px; margin-top: 4px;">Lead Aureon Devices through a decade of market disruption</p>
+          </div>
+          <div class="header-meta">
+            <div class="round-badge">Year {{ currentYear }}, Semester {{ currentSemester }}</div>
+            <div>Progress: {{ decisionCount }} / 20 decisions</div>
+            <div style="font-size: 11px; color: #999;">{{ sessionId }}</div>
+          </div>
+        </div>
+
+        <div v-if="userRole === 'trainer'" class="trainer-container">
+          <div class="trainer-header">
+            <h2>Trainer Dashboard</h2>
+            <p style="color: #666; font-size: 13px;">Session: {{ sessionId }} | Email: orangebusinesscampus@gmail.com</p>
+          </div>
+
+          <div class="trainer-controls">
+            <button class="trainer-btn" @click="resolveCurrentRound">
+              ✓ Resolve Round & Show Scenario
+            </button>
+            <button class="trainer-btn secondary" @click="advanceToNextRound">
+              → Unlock Next Round
+            </button>
+            <button class="trainer-btn secondary" @click="resetSession">
+              ↻ New Session
+            </button>
+          </div>
+
+          <div v-if="showScenarioReveal && currentScenario" class="scenario-reveal">
+            <h3>🎯 Hidden Forces Revealed (Y{{ currentYear }}S{{ currentSemester }})</h3>
+            <div style="font-size: 13px; margin-bottom: 12px;">
+              <strong>{{ currentScenario.title }}</strong><br>
+              {{ currentScenario.narrative }}
+            </div>
+            <div class="forces-display">
+              <div class="force-badge">
+                <strong>Supplier Power</strong>
+                <div class="value">{{ currentScenario.forces.supplierPower }}</div>
+              </div>
+              <div class="force-badge">
+                <strong>Buyer Power</strong>
+                <div class="value">{{ currentScenario.forces.buyerPower }}</div>
+              </div>
+              <div class="force-badge">
+                <strong>New Entrants</strong>
+                <div class="value">{{ currentScenario.forces.threatOfNewEntrants }}</div>
+              </div>
+              <div class="force-badge">
+                <strong>Substitutes</strong>
+                <div class="value">{{ currentScenario.forces.threatOfSubstitutes }}</div>
+              </div>
+              <div class="force-badge">
+                <strong>Rivalry</strong>
+                <div class="value">{{ currentScenario.forces.competitiveRivalry }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="comparison-grid">
+            <div class="team-summary">
+              <h3>📊 Team A - {{ teamAName }}</h3>
+              <div class="summary-kpi">
+                <span>Cash Strength</span>
+                <span class="summary-kpi-value">{{ teamAState.cash }}%</span>
+              </div>
+              <div class="summary-kpi">
+                <span>Market Share</span>
+                <span class="summary-kpi-value">{{ teamAState.market }}%</span>
+              </div>
+              <div class="summary-kpi">
+                <span>Supply Stability</span>
+                <span class="summary-kpi-value">{{ teamAState.supply }}%</span>
+              </div>
+              <div class="summary-kpi">
+                <span>Disruption Readiness</span>
+                <span class="summary-kpi-value">{{ teamAState.disruption }}%</span>
+              </div>
+              <div class="summary-kpi" style="border-top: 2px solid #2a5298; padding-top: 12px; margin-top: 12px; font-weight: bold;">
+                <span>Avg Score</span>
+                <span class="summary-kpi-value">{{ teamAAverage }}%</span>
+              </div>
+              <div v-if="teamADecision" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #ddd; font-size: 12px;">
+                <strong>Last Decision:</strong> {{ teamADecision }}
+              </div>
+            </div>
+
+            <div class="team-summary">
+              <h3>📊 Team B - {{ teamBName }}</h3>
+              <div class="summary-kpi">
+                <span>Cash Strength</span>
+                <span class="summary-kpi-value">{{ teamBState.cash }}%</span>
+              </div>
+              <div class="summary-kpi">
+                <span>Market Share</span>
+                <span class="summary-kpi-value">{{ teamBState.market }}%</span>
+              </div>
+              <div class="summary-kpi">
+                <span>Supply Stability</span>
+                <span class="summary-kpi-value">{{ teamBState.supply }}%</span>
+              </div>
+              <div class="summary-kpi">
+                <span>Disruption Readiness</span>
+                <span class="summary-kpi-value">{{ teamBState.disruption }}%</span>
+              </div>
+              <div class="summary-kpi" style="border-top: 2px solid #2a5298; padding-top: 12px; margin-top: 12px; font-weight: bold;">
+                <span>Avg Score</span>
+                <span class="summary-kpi-value">{{ teamBAverage }}%</span>
+              </div>
+              <div v-if="teamBDecision" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #ddd; font-size: 12px;">
+                <strong>Last Decision:</strong> {{ teamBDecision }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div v-else class="team-container">
+          <div class="team-panel">
+            <h2>Aureon Devices - {{ userTeam === 'A' ? 'Team A' : 'Team B' }}</h2>
+            
+            <div class="kpi-grid">
+              <div class="kpi-card">
+                <div class="kpi-name">💰 Cash Strength</div>
+                <div class="kpi-value">{{ currentState.cash }}%</div>
+                <div class="kpi-bar">
+                  <div class="kpi-bar-fill" :style="{ width: currentState.cash + '%' }"></div>
+                </div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-name">📈 Market Share</div>
+                <div class="kpi-value">{{ currentState.market }}%</div>
+                <div class="kpi-bar">
+                  <div class="kpi-bar-fill" :style="{ width: currentState.market + '%' }"></div>
+                </div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-name">⛓️ Supply Stability</div>
+                <div class="kpi-value">{{ currentState.supply }}%</div>
+                <div class="kpi-bar">
+                  <div class="kpi-bar-fill" :style="{ width: currentState.supply + '%' }"></div>
+                </div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-name">🚀 Disruption Readiness</div>
+                <div class="kpi-value">{{ currentState.disruption }}%</div>
+                <div class="kpi-bar">
+                  <div class="kpi-bar-fill" :style="{ width: currentState.disruption + '%' }"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="decision-section">
+              <h3>Your Decision (Y{{ currentYear }}S{{ currentSemester }})</h3>
+
+              <div class="scenario-toggle">
+                <button 
+                  v-if="canSeeScenario"
+                  @click="toggleScenario"
+                  :class="{ active: scenarioVisible }"
+                >
+                  📋 {{ scenarioVisible ? 'Hide' : 'View' }} Market Forces
+                </button>
+                <button v-else style="opacity: 0.5; cursor: not-allowed;">
+                  📋 Market Forces Hidden (Blind Decision)
+                </button>
+              </div>
+
+              <div class="scenario-content" :class="{ visible: scenarioVisible }" v-if="currentScenario">
+                <h4>{{ currentScenario.title }}</h4>
+                <p>{{ currentScenario.narrative }}</p>
+                <div class="forces-grid">
+                  <div class="force-item">
+                    <div class="force-name">Supplier Power</div>
+                    <div class="force-value">{{ currentScenario.forces.supplierPower }}/10</div>
+                  </div>
+                  <div class="force-item">
+                    <div class="force-name">Buyer Power</div>
+                    <div class="force-value">{{ currentScenario.forces.buyerPower }}/10</div>
+                  </div>
+                  <div class="force-item">
+                    <div class="force-name">Threat of New Entrants</div>
+                    <div class="force-value">{{ currentScenario.forces.threatOfNewEntrants }}/10</div>
+                  </div>
+                  <div class="force-item">
+                    <div class="force-name">Threat of Substitutes</div>
+                    <div class="force-value">{{ currentScenario.forces.threatOfSubstitutes }}/10</div>
+                  </div>
+                  <div class="force-item">
+                    <div class="force-name">Competitive Rivalry</div>
+                    <div class="force-value">{{ currentScenario.forces.competitiveRivalry }}/10</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="decision-buttons">
+                <button 
+                  class="decision-btn"
+                  :class="{ selected: selectedDecision === 'Rapid Expansion' }"
+                  @click="selectedDecision = 'Rapid Expansion'"
+                >
+                  <strong>🚀 Rapid Expansion</strong>
+                  <small>Go big, burn cash</small>
+                </button>
+
+                <button 
+                  class="decision-btn"
+                  :class="{ selected: selectedDecision === 'Steady Build' }"
+                  @click="selectedDecision = 'Steady Build'"
+                >
+                  <strong>📊 Steady Build</strong>
+                  <small>Profitable, slow growth</small>
+                </button>
+
+                <button 
+                  class="decision-btn"
+                  :class="{ selected: selectedDecision === 'Fortress' }"
+                  @click="selectedDecision = 'Fortress'"
+                >
+                  <strong>🛡️ Fortress</strong>
+                  <small>Protect what you have</small>
+                </button>
+
+                <button 
+                  class="decision-btn"
+                  :class="{ selected: selectedDecision === 'Pivot' }"
+                  @click="selectedDecision = 'Pivot'"
+                >
+                  <strong>🔄 Pivot</strong>
+                  <small>New market, high risk</small>
+                </button>
+              </div>
+
+              <button 
+                class="submit-btn"
+                @click="submitDecision"
+                :disabled="!selectedDecision || isSubmitting"
+              >
+                {{ isSubmitting ? 'Submitting...' : 'Submit Decision' }}
+              </button>
+
+              <div v-if="submissionStatus" :class="['status-message', submissionStatus.type]">
+                <span v-if="submissionStatus.type === 'waiting'" class="waiting-indicator"></span>
+                {{ submissionStatus.message }}
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+      
+      setup() {
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwVtNFEbhq9w7y1Cw0ZwrN7j1tHOrhzM-pK_1vO0pUrut9e5MXUe8jD7pNlzVjEmavc/exec';
+        
+        const gameTitle = ref('The Independence Gamble');
+        const userRole = ref('team');
+        const userTeam = ref('A');
+        const sessionId = ref('');
+        const teamAName = ref('Team A');
+        const teamBName = ref('Team B');
+        
+        const currentYear = ref(1);
+        const currentSemester = ref(1);
+        const decisionCount = ref(0);
+        
+        const selectedDecision = ref(null);
+        const scenarioVisible = ref(false);
+        const isSubmitting = ref(false);
+        const showScenarioReveal = ref(false);
+        const submissionStatus = ref(null);
+        
+        const currentState = reactive({
+          cash: 50,
+          market: 50,
+          supply: 50,
+          disruption: 50
+        });
+        
+        const teamAState = reactive({
+          cash: 50,
+          market: 50,
+          supply: 50,
+          disruption: 50
+        });
+        
+        const teamBState = reactive({
+          cash: 50,
+          market: 50,
+          supply: 50,
+          disruption: 50
+        });
+        
+        const teamADecision = ref('');
+        const teamBDecision = ref('');
+        
+        const currentScenario = reactive({
+          scenarioId: 'Y01S01',
+          title: 'Market Entry Pressure',
+          narrative: 'Six months into 2026, FinTech startups announce a new AI-powered advisory platform...',
+          forces: {
+            supplierPower: 4,
+            buyerPower: 6,
+            threatOfNewEntrants: 8,
+            threatOfSubstitutes: 7,
+            competitiveRivalry: 5
+          },
+          economicContext: 'stable'
+        });
+        
+        const canSeeScenario = computed(() => {
+          return currentYear.value >= 4;
+        });
+        
+        const teamAAverage = computed(() => {
+          return Math.round((teamAState.cash + teamAState.market + teamAState.supply + teamAState.disruption) / 4);
+        });
+        
+        const teamBAverage = computed(() => {
+          return Math.round((teamBState.cash + teamBState.market + teamBState.supply + teamBState.disruption) / 4);
+        });
+        
+        const toggleScenario = () => {
+          scenarioVisible.value = !scenarioVisible.value;
+        };
+        
+        const submitDecision = async () => {
+          if (!selectedDecision.value) return;
+          
+          isSubmitting.value = true;
+          submissionStatus.value = {
+            type: 'waiting',
+            message: '⏳ Submitting your decision to Sheets...'
+          };
+          
+          try {
+            const response = await fetch(APPS_SCRIPT_URL, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+              },
+              body: new URLSearchParams({
+                action: 'submit_decision',
+                sessionId: sessionId.value,
+                teamName: userTeam.value,
+                year: currentYear.value,
+                semester: currentSemester.value,
+                decision: selectedDecision.value
+              })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+              submissionStatus.value = {
+                type: 'submitted',
+                message: '✅ Decision submitted! Waiting for trainer...'
+              };
+            } else {
+              submissionStatus.value = {
+                type: 'error',
+                message: '❌ Error: ' + (data.error || 'Unknown error')
+              };
+            }
+          } catch (error) {
+            submissionStatus.value = {
+              type: 'error',
+              message: '❌ Error: ' + error.toString()
+            };
+          }
+          
+          isSubmitting.value = false;
+        };
+        
+        const resolveCurrentRound = async () => {
+          try {
+            const response = await fetch(APPS_SCRIPT_URL, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+              },
+              body: new URLSearchParams({
+                action: 'resolve_semester',
+                sessionId: sessionId.value,
+                year: currentYear.value,
+                semester: currentSemester.value
+              })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+              // Update team states
+              teamAState.cash = data.teamA.result.cash;
+              teamAState.market = data.teamA.result.market;
+              teamAState.supply = data.teamA.result.supply;
+              teamAState.disruption = data.teamA.result.disruption;
+              teamADecision.value = data.teamA.decision;
+              
+              teamBState.cash = data.teamB.result.cash;
+              teamBState.market = data.teamB.result.market;
+              teamBState.supply = data.teamB.result.supply;
+              teamBState.disruption = data.teamB.result.disruption;
+              teamBDecision.value = data.teamB.decision;
+              
+              showScenarioReveal.value = true;
+              loadScenario(data.teamA.scenarioId);
+            }
+          } catch (error) {
+            console.error('Error resolving round:', error);
+          }
+        };
+        
+        const loadScenario = (scenarioId) => {
+          // This would load from your scenarios JSON
+          // For now, using hardcoded scenario
+        };
+        
+        const advanceToNextRound = () => {
+          if (currentSemester.value === 2) {
+            currentYear.value += 1;
+            currentSemester.value = 1;
+          } else {
+            currentSemester.value = 2;
+          }
+          
+          decisionCount.value = currentYear.value * 2 - (2 - currentSemester.value);
+          selectedDecision.value = null;
+          scenarioVisible.value = false;
+          submissionStatus.value = null;
+          showScenarioReveal.value = false;
+        };
+        
+        const resetSession = () => {
+          currentYear.value = 1;
+          currentSemester.value = 1;
+          decisionCount.value = 0;
+          currentState.cash = 50;
+          currentState.market = 50;
+          currentState.supply = 50;
+          currentState.disruption = 50;
+          teamAState.cash = 50;
+          teamAState.market = 50;
+          teamAState.supply = 50;
+          teamAState.disruption = 50;
+          selectedDecision.value = null;
+          submissionStatus.value = null;
+          teamADecision.value = '';
+          teamBDecision.value = '';
+        };
+        
+        // Parse URL params
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('role') === 'trainer') {
+          userRole.value = 'trainer';
+        } else {
+          userRole.value = 'team';
+          userTeam.value = params.get('team') || 'A';
+        }
+        
+        // Generate or use session ID
+        const sessionParam = params.get('session');
+        if (sessionParam) {
+          sessionId.value = sessionParam;
+        } else {
+          sessionId.value = 'SESSION-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+        }
+        
+        return {
+          gameTitle,
+          userRole,
+          userTeam,
+          sessionId,
+          teamAName,
+          teamBName,
+          currentYear,
+          currentSemester,
+          decisionCount,
+          selectedDecision,
+          scenarioVisible,
+          isSubmitting,
+          showScenarioReveal,
+          submissionStatus,
+          currentState,
+          teamAState,
+          teamBState,
+          teamADecision,
+          teamBDecision,
+          currentScenario,
+          canSeeScenario,
+          teamAAverage,
+          teamBAverage,
+          toggleScenario,
+          submitDecision,
+          resolveCurrentRound,
+          advanceToNextRound,
+          resetSession,
+          loadScenario
+        };
+      }
+    });
+
+    app.mount('#app');
+  </script>
+</body>
+</html>
