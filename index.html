@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VectorGrid Solutions - Strategic Challenge</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0e17; color: #e0e6ed; }
+        #ui-overlay { width: 100vw; min-height: 100vh; overflow-y: auto; }
+        .cover-overlay { width: 100%; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(180deg, rgba(10, 14, 23, 0.8) 0%, rgba(10, 14, 23, 1) 100%); padding: 40px 20px; }
+        .cover-content { text-align: center; max-width: 900px; width: 100%; }
+        .cover-title { font-size: 64px; font-weight: 700; margin-bottom: 24px; color: #a8d5ff; }
+        .cover-subtitle { font-size: 20px; color: rgba(255, 255, 255, 0.7); margin-bottom: 32px; }
+        .story-box { text-align: left; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 32px; margin-bottom: 32px; max-height: 40vh; overflow-y: auto; }
+        .story-box h2 { font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #a8d5ff; }
+        .story-box p { font-size: 15px; line-height: 1.8; color: rgba(255, 255, 255, 0.8); margin-bottom: 16px; }
+        .btn { padding: 12px 28px; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+        .btn-primary { background: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); }
+        .btn-secondary { background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.2); }
+        .cover-button { margin-top: 24px; }
+        .team-view { width: 100%; min-height: 100vh; display: flex; flex-direction: column; padding: 32px; background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%); }
+        .team-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+        .team-name { font-size: 36px; font-weight: 700; color: #a8d5ff; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+        .kpi-card { padding: 16px; border-radius: 10px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .kpi-label { font-size: 11px; color: rgba(255, 255, 255, 0.6); text-transform: uppercase; margin-bottom: 8px; }
+        .kpi-value { font-size: 24px; font-weight: 700; color: #22c55e; }
+        .scenario-box { padding: 20px; margin-bottom: 24px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .scenario-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; color: #a8d5ff; }
+        .scenario-text { font-size: 14px; line-height: 1.7; color: rgba(255, 255, 255, 0.8); }
+        .options-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+        .option-btn { padding: 14px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: rgba(255, 255, 255, 0.8); cursor: pointer; text-align: left; font-size: 13px; transition: all 0.3s ease; }
+        .option-btn:hover { background: rgba(255, 255, 255, 0.08); }
+        .option-btn.selected { background: rgba(99, 102, 241, 0.2); border-color: #6366f1; color: #a8d5ff; }
+        .instructor-view { width: 100%; min-height: 100vh; padding: 32px; background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%); }
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+        .dashboard-title { font-size: 36px; font-weight: 700; color: #a8d5ff; }
+        .teams-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+        .team-panel { padding: 20px; border-radius: 12px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .team-panel-title { font-size: 16px; font-weight: 600; color: #a8d5ff; margin-bottom: 16px; }
+        .debrief-box { padding: 24px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .debrief-box h3 { color: #a8d5ff; margin-bottom: 16px; }
+        .debrief-guide { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+        .debrief-column { padding: 16px; background: rgba(255, 255, 255, 0.02); border-radius: 10px; border-left: 3px solid #6366f1; font-size: 12px; }
+        .debrief-column h4 { color: #a8d5ff; margin-bottom: 12px; font-size: 13px; }
+        .debrief-column ul { margin-left: 16px; color: rgba(255, 255, 255, 0.7); line-height: 1.7; }
+        textarea { width: 100%; height: 80px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: rgba(255, 255, 255, 0.8); padding: 10px; font-family: inherit; font-size: 12px; margin-bottom: 16px; }
+        .unlock-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .hint-text { font-size: 11px; color: rgba(255, 255, 255, 0.3); margin-top: 24px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div id="ui-overlay"></div>
+
+    <script>
+        let gameState = {
+            mode: 'cover',
+            teamName: '',
+            currentRound: 0,
+            gameSheetId: null
+        };
+
+        let appsScriptUrl = '';
+
+        async function init() {
+            try {
+                const config = await fetch('config.json').then(r => r.json());
+                appsScriptUrl = config.appsScriptUrl;
+                if (!appsScriptUrl || appsScriptUrl.includes('YOUR_DEPLOYMENT_ID')) {
+                    alert('ERROR: config.json not configured properly.\n\nFollow deployment guide to add Apps Script URL.');
+                }
+            } catch (err) {
+                console.log('Config load error (expected if no config):', err);
+            }
+            renderCover();
+        }
+
+        async function callAppsScript(action, params = {}) {
+            if (!appsScriptUrl) {
+                console.error('Apps Script URL not configured');
+                return null;
+            }
+            const url = new URL(appsScriptUrl);
+            url.searchParams.append('action', action);
+            for (const [key, value] of Object.entries(params)) {
+                url.searchParams.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
+            }
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                console.log('Apps Script response:', data);
+                return data.success ? data.data : null;
+            } catch (error) {
+                console.error('API Error:', error);
+                return null;
+            }
+        }
+
+        function renderCover() {
+            gameState.mode = 'cover';
+            document.getElementById('ui-overlay').innerHTML = `
+                <div class="cover-overlay">
+                    <div class="cover-content">
+                        <h1 class="cover-title">VectorGrid Solutions</h1>
+                        <p class="cover-subtitle">Strategic Challenge - 120 Day Turnaround</p>
+                        <div class="story-box">
+                            <h2>The Situation</h2>
+                            <p>You are <strong>Maya Patel</strong>, newly appointed General Manager of VectorGrid's Mid-Market Business.</p>
+                            <p>Three weak quarters. Customers demanding lower prices, faster delivery, and AI capabilities. Your leadership team is split on strategy. You have 120 days before the board reviews your turnaround.</p>
+                            <p><strong>Targets:</strong> Market Share 24% | Margin 15% | Alignment 80% | Growth Options 70%</p>
+                        </div>
+                        <button class="btn btn-primary cover-button" onclick="startGame()">Play as Team</button>
+                        <p class="hint-text">Press Ctrl+I for instructor access</p>
+                    </div>
+                </div>
+            `;
+
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
+                    e.preventDefault();
+                    renderInstructor();
+                }
+            });
+        }
+
+        async function startGame() {
+            const team = prompt('Enter team name (e.g., Team Alpha, Team Beta):');
+            if (team) {
+                gameState.teamName = team;
+                // Initialize game via Apps Script
+                const result = await callAppsScript('initGame');
+                if (result && result.gameSheetId) {
+                    gameState.gameSheetId = result.gameSheetId;
+                    alert('Game initialized. Sheet ID: ' + result.gameSheetId);
+                    renderTeam();
+                } else {
+                    alert('Failed to initialize game. Check Apps Script configuration.');
+                }
+            }
+        }
+
+        function renderTeam() {
+            gameState.mode = 'team';
+            document.getElementById('ui-overlay').innerHTML = `
+                <div class="team-view">
+                    <div class="team-header">
+                        <h1 class="team-name">${gameState.teamName}</h1>
+                        <button class="btn btn-secondary" onclick="renderCover()">Back</button>
+                    </div>
+                    <div class="kpi-grid">
+                        <div class="kpi-card"><div class="kpi-label">Market Share</div><div class="kpi-value">18%</div></div>
+                        <div class="kpi-card"><div class="kpi-label">Margin</div><div class="kpi-value">12%</div></div>
+                        <div class="kpi-card"><div class="kpi-label">Alignment</div><div class="kpi-value">70%</div></div>
+                        <div class="kpi-card"><div class="kpi-label">Growth</div><div class="kpi-value">55%</div></div>
+                    </div>
+                    <div class="scenario-box">
+                        <h2 class="scenario-title">Round ${gameState.currentRound + 1}: Market Diagnosis</h2>
+                        <p class="scenario-text">Your first two weeks reveal a market in flux. Customers cite three pain points: price, speed to value, and AI capabilities.</p>
+                    </div>
+                    <div class="options-list">
+                        <button class="option-btn" onclick="selectOption('a')">Option A: Price War</button>
+                        <button class="option-btn" onclick="selectOption('b')">Option B: Double Down on AI</button>
+                        <button class="option-btn" onclick="selectOption('c')">Option C: Customer Discovery</button>
+                    </div>
+                    <button class="btn btn-primary" onclick="alert('Decision submitted. Waiting for instructor to debrief.')">Submit Decision</button>
+                </div>
+            `;
+        }
+
+        function selectOption(id) {
+            document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
+            event.target.classList.add('selected');
+        }
+
+        function renderInstructor() {
+            gameState.mode = 'instructor';
+            document.getElementById('ui-overlay').innerHTML = `
+                <div class="instructor-view">
+                    <div class="dashboard-header">
+                        <h1 class="dashboard-title">Instructor Control</h1>
+                        <button class="btn btn-secondary" onclick="renderCover()">Back</button>
+                    </div>
+                    <div class="teams-grid">
+                        <div class="team-panel">
+                            <div class="team-panel-title">Team Alpha</div>
+                            <p style="font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 12px;">Awaiting Decision</p>
+                        </div>
+                        <div class="team-panel">
+                            <div class="team-panel-title">Team Beta</div>
+                            <p style="font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 12px;">Awaiting Decision</p>
+                        </div>
+                    </div>
+                    <div class="debrief-box">
+                        <h3>Debrief Guidance</h3>
+                        <div class="debrief-guide">
+                            <div class="debrief-column">
+                                <h4>When Team Chooses Option A (Price War)</h4>
+                                <ul>
+                                    <li><strong>Wins:</strong> Market share +8%, Sales team rallies</li>
+                                    <li><strong>Losses:</strong> Margin -6%, No future investment</li>
+                                    <li><strong>Ask:</strong> How sustainable is this? What happens when competitors match?</li>
+                                    <li><strong>Watch:</strong> Margin erosion is irreversible once customers expect low prices</li>
+                                </ul>
+                            </div>
+                            <div class="debrief-column">
+                                <h4>When Team Chooses Option B (AI Focus)</h4>
+                                <ul>
+                                    <li><strong>Wins:</strong> Margin +4%, Future growth +12%</li>
+                                    <li><strong>Losses:</strong> Market share +2%, Sales team frustrated</li>
+                                    <li><strong>Ask:</strong> How do you keep Sales motivated for a 12-week wait?</li>
+                                    <li><strong>Watch:</strong> 12-week delivery in 120-day runway leaves no margin for error</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <h3 style="margin-top: 20px;">Your Debrief Notes</h3>
+                        <textarea placeholder="Add talking points and observations here..."></textarea>
+                        <button class="unlock-btn" onclick="alert('Round Unlocked!')">Unlock Next Round</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        init();
+    </script>
+</body>
+</html>
