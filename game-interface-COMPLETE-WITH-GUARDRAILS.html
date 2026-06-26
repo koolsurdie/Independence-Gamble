@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Independence Gamble - Strategic Business Simulation</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    .header h1 {
+      color: #1e3a8a;
+      font-size: 28px;
+    }
+
+    .decision-counter {
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    .setup-screen {
+      text-align: center;
+    }
+
+    .setup-screen h2 {
+      color: #1e3a8a;
+      margin-bottom: 30px;
+      font-size: 24px;
+    }
+
+    .setup-form {
+      background: #f9fafb;
+      padding: 30px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #374151;
+      font-weight: 600;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .btn {
+      background: #3b82f6;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      background: #2563eb;
+      transform: translateY(-2px);
+    }
+
+    .btn:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: #6b7280;
+    }
+
+    .btn-secondary:hover {
+      background: #4b5563;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+
+    .btn-success {
+      background: #10b981;
+    }
+
+    .btn-success:hover {
+      background: #059669;
+    }
+
+    .btn-warning {
+      background: #f59e0b;
+    }
+
+    .btn-warning:hover {
+      background: #d97706;
+    }
+
+    .session-urls {
+      background: #dbeafe;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .session-urls h3 {
+      color: #1e40af;
+      margin-bottom: 12px;
+    }
+
+    .url-box {
+      background: white;
+      padding: 12px;
+      border-radius: 6px;
+      margin: 8px 0;
+      word-break: break-all;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      color: #1e3a8a;
+      border: 1px solid #93c5fd;
+    }
+
+    .intro-screen {
+      text-align: center;
+    }
+
+    .intro-screen h2 {
+      color: #1e3a8a;
+      margin-bottom: 20px;
+      font-size: 28px;
+    }
+
+    .company-story {
+      background: #eff6ff;
+      padding: 30px;
+      border-left: 4px solid #3b82f6;
+      margin: 20px 0;
+      text-align: left;
+      line-height: 1.8;
+      color: #374151;
+    }
+
+    .company-story h3 {
+      color: #1e3a8a;
+      margin-bottom: 12px;
+    }
+
+    .company-story p {
+      margin-bottom: 12px;
+    }
+
+    .game-screen {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .kpi-card {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      padding: 20px;
+      border-radius: 8px;
+      border-left: 4px solid #0284c7;
+      text-align: center;
+    }
+
+    .kpi-card h4 {
+      color: #0c4a6e;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .kpi-value {
+      font-size: 36px;
+      font-weight: bold;
+      color: #0c4a6e;
+    }
+
+    .kpi-target {
+      font-size: 12px;
+      color: #0369a1;
+      margin-top: 8px;
+    }
+
+    .scenario-box {
+      background: #fef3c7;
+      padding: 24px;
+      border-left: 4px solid #d97706;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    .scenario-box h3 {
+      color: #b45309;
+      margin-bottom: 12px;
+      font-size: 18px;
+    }
+
+    .scenario-box p {
+      color: #78350f;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .forces-display {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .force-item {
+      background: white;
+      padding: 12px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      border: 1px solid #fcd34d;
+    }
+
+    .force-label {
+      font-weight: 600;
+      color: #b45309;
+    }
+
+    .force-value {
+      color: #92400e;
+    }
+
+    .forces-hidden-message {
+      background: white;
+      padding: 12px;
+      border-radius: 6px;
+      color: #78350f;
+      font-size: 14px;
+      margin-top: 12px;
+      border: 1px solid #fcd34d;
+    }
+
+    .decision-section h3 {
+      color: #1e3a8a;
+      margin-bottom: 12px;
+      font-size: 18px;
+    }
+
+    .decision-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .decision-btn {
+      padding: 16px 12px;
+      border: 2px solid #d1d5db;
+      background: white;
+      color: #374151;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .decision-btn:hover {
+      border-color: #3b82f6;
+      background: #eff6ff;
+    }
+
+    .decision-btn.selected {
+      background: #3b82f6;
+      color: white;
+      border-color: #3b82f6;
+    }
+
+    .impact-preview {
+      background: #f3f4f6;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      border-left: 4px solid #6366f1;
+    }
+
+    .impact-preview h4 {
+      color: #1e3a8a;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+
+    .impact-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .impact-item {
+      background: white;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .impact-label {
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .impact-value {
+      font-weight: bold;
+    }
+
+    .impact-value.positive {
+      color: #10b981;
+    }
+
+    .impact-value.negative {
+      color: #ef4444;
+    }
+
+    .impact-value.critical {
+      color: #dc2626;
+      font-weight: 900;
+    }
+
+    .warning-box {
+      background: #fecaca;
+      border: 2px solid #dc2626;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .warning-box h4 {
+      color: #7f1d1d;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    .warning-box p {
+      color: #7f1d1d;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .warning-items {
+      background: white;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+
+    .warning-items li {
+      color: #dc2626;
+      margin-left: 20px;
+      margin-bottom: 4px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .decision-locked {
+      background: #dcfce7;
+      border: 2px solid #22c55e;
+      padding: 16px;
+      border-radius: 8px;
+      color: #166534;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .waiting-message {
+      background: #fef08a;
+      border: 2px solid #eab308;
+      padding: 16px;
+      border-radius: 8px;
+      color: #713f12;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .trainer-dashboard {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .team-panel {
+      background: #f9fafb;
+      padding: 24px;
+      border-radius: 8px;
+      border-left: 4px solid #3b82f6;
+    }
+
+    .team-panel h3 {
+      color: #1e3a8a;
+      margin-bottom: 16px;
+    }
+
+    .team-kpi {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .team-kpi:last-child {
+      border-bottom: none;
+    }
+
+    .team-kpi-label {
+      color: #6b7280;
+      font-weight: 600;
+    }
+
+    .team-kpi-value {
+      color: #1e3a8a;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .latest-decision {
+      background: white;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 12px;
+      border-left: 4px solid #8b5cf6;
+    }
+
+    .latest-decision-label {
+      color: #6b7280;
+      font-size: 12px;
+    }
+
+    .latest-decision-value {
+      color: #7c3aed;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .trainer-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .trainer-controls .btn {
+      width: 100%;
+    }
+
+    .error-message {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 4px solid #dc2626;
+    }
+
+    .success-message {
+      background: #dcfce7;
+      color: #166534;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 4px solid #22c55e;
+    }
+
+    .loading {
+      text-align: center;
+      color: #6b7280;
+      font-size: 18px;
+      padding: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- SETUP SCREEN (no URL params) -->
+    <div v-if="!sessionId && !teamParam && !role" class="container">
+      <div class="setup-screen">
+        <h2>🎮 The Independence Gamble</h2>
+        <p style="color: #6b7280; margin-bottom: 30px;">Strategic Business Simulation for Aureon Devices</p>
+        
+        <div class="setup-form">
+          <div class="form-group">
+            <label>Trainer Email</label>
+            <input v-model="trainerEmail" type="email" placeholder="orangebusinesscampus@gmail.com">
+          </div>
+          <div class="form-group">
+            <label>Team A Name</label>
+            <input v-model="teamANameInput" placeholder="e.g., Tigers">
+          </div>
+          <div class="form-group">
+            <label>Team B Name</label>
+            <input v-model="teamBNameInput" placeholder="e.g., Eagles">
+          </div>
+          <button @click="createSession" class="btn" :disabled="!trainerEmail || !teamANameInput || !teamBNameInput">
+            Create New Session
+          </button>
+        </div>
+
+        <div v-if="errorMsg" class="error-message">{{ errorMsg }}</div>
+        <div v-if="sessionUrls" class="session-urls">
+          <h3>✅ Session Created!</h3>
+          <p><strong>Session ID:</strong> {{ newSessionId }}</p>
+          <p style="margin-top: 12px;"><strong>Share these URLs:</strong></p>
+          <div class="url-box">
+            <strong>Team A ({{ teamANameInput }}):</strong><br>
+            {{ sessionUrls.teamA }}
+          </div>
+          <div class="url-box">
+            <strong>Team B ({{ teamBNameInput }}):</strong><br>
+            {{ sessionUrls.teamB }}
+          </div>
+          <div class="url-box">
+            <strong>Trainer Dashboard:</strong><br>
+            {{ sessionUrls.trainer }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INTRO SCREEN (team first load) -->
+    <div v-else-if="showIntro && (teamParam === 'A' || teamParam === 'B')" class="container">
+      <div class="intro-screen">
+        <h2>Welcome to The Independence Gamble</h2>
+        <div class="company-story">
+          <h3>🏭 Aureon Devices — A 140-Year Legacy</h3>
+          <p>For nearly 14 decades, Aureon Devices has been synonymous with precision electronics. Founded in 1880, the company built its reputation manufacturing components for aerospace, defense, and industrial equipment—markets where reliability was not a luxury but a legal requirement.</p>
+          
+          <p>Until last year, Aureon was a division of a much larger conglomerate. But the parent company made a decision: divest. Aureon was spun off, handed the keys to independence, and told to survive on its own.</p>
+          
+          <p><strong>The Problem:</strong> The markets Aureon dominated—aerospace, defense, industrial—are in structural decline. Cheaper alternatives exist. New entrants are flooding the space. The supply chain is fragile. And disruption is coming.</p>
+          
+          <p><strong>Your Challenge:</strong> You have 10 years (20 strategic decisions) to navigate five forces of competitive pressure while managing four critical KPIs: cash strength, market share, supply stability, and disruption readiness. Every choice has trade-offs. Every decision shapes the future.</p>
+          
+          <p style="margin-top: 20px; font-weight: bold;">🎯 The question is simple: Can Aureon Devices remain independent?</p>
+        </div>
+        
+        <button @click="startGame" class="btn" style="margin-top: 30px;">
+          Begin the Simulation
+        </button>
+      </div>
+    </div>
+
+    <!-- GAME SCREEN (team during game) -->
+    <div v-else-if="(teamParam === 'A' || teamParam === 'B') && !showIntro" class="container">
+      <div class="header">
+        <div>
+          <h1>Year {{ currentYear }}, Semester {{ currentSemester }}</h1>
+          <p style="color: #6b7280; margin-top: 4px;">Decision {{ decisionNumber }} of 20</p>
+        </div>
+      </div>
+
+      <div v-if="errorMsg" class="error-message">{{ errorMsg }}</div>
+      <div v-if="successMsg" class="success-message">{{ successMsg }}</div>
+
+      <div class="game-screen">
+        <!-- KPI DISPLAY -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <h4>💰 Cash Strength</h4>
+            <div class="kpi-value">{{ currentKpis.cash }}</div>
+            <div class="kpi-target">Target: 65+</div>
+          </div>
+          <div class="kpi-card">
+            <h4>📈 Market Share</h4>
+            <div class="kpi-value">{{ currentKpis.market }}</div>
+            <div class="kpi-target">Target: 20+</div>
+          </div>
+          <div class="kpi-card">
+            <h4>⛓️ Supply Stability</h4>
+            <div class="kpi-value">{{ currentKpis.supply }}</div>
+            <div class="kpi-target">Target: 75+</div>
+          </div>
+          <div class="kpi-card">
+            <h4>🚀 Disruption Readiness</h4>
+            <div class="kpi-value">{{ currentKpis.disruption }}</div>
+            <div class="kpi-target">Target: 70+</div>
+          </div>
+        </div>
+
+        <!-- SCENARIO (VISIBLE BEFORE DECISION) -->
+        <div v-if="currentScenario" class="scenario-box">
+          <h3>📊 Market Dynamics for Year {{ currentYear }}, Semester {{ currentSemester }}</h3>
+          <p>{{ currentScenario.narrative }}</p>
+          
+          <div v-if="currentYear >= 4">
+            <p style="font-weight: bold; margin-top: 12px;">Porter's Five Forces:</p>
+            <div class="forces-display">
+              <div class="force-item">
+                <span class="force-label">Supplier Power:</span>
+                <span class="force-value">{{ currentScenario.forces.supplierPower }}/10</span>
+              </div>
+              <div class="force-item">
+                <span class="force-label">Buyer Power:</span>
+                <span class="force-value">{{ currentScenario.forces.buyerPower }}/10</span>
+              </div>
+              <div class="force-item">
+                <span class="force-label">New Entrants:</span>
+                <span class="force-value">{{ currentScenario.forces.threatOfNewEntrants }}/10</span>
+              </div>
+              <div class="force-item">
+                <span class="force-label">Substitutes:</span>
+                <span class="force-value">{{ currentScenario.forces.threatOfSubstitutes }}/10</span>
+              </div>
+              <div class="force-item">
+                <span class="force-label">Rivalry:</span>
+                <span class="force-value">{{ currentScenario.forces.competitiveRivalry }}/10</span>
+              </div>
+              <div class="force-item">
+                <span class="force-label">Economic Context:</span>
+                <span class="force-value">{{ currentScenario.economicContext }}</span>
+              </div>
+            </div>
+          </div>
+          <div v-else class="forces-hidden-message">
+            🔒 Market forces are hidden. You'll learn what influenced the outcome after you decide.
+          </div>
+        </div>
+
+        <!-- DECISION SECTION -->
+        <div class="decision-section">
+          <h3>Your Strategic Decision</h3>
+          <p style="color: #6b7280; margin-bottom: 16px;">Choose one strategic posture for this semester:</p>
+          
+          <div v-if="!decisionLocked" class="decision-buttons">
+            <button 
+              @click="selectDecision('Rapid Expansion')"
+              class="decision-btn"
+              :class="{ selected: selectedDecision === 'Rapid Expansion' }"
+            >
+              🚀 Rapid Expansion
+            </button>
+            <button 
+              @click="selectDecision('Steady Build')"
+              class="decision-btn"
+              :class="{ selected: selectedDecision === 'Steady Build' }"
+            >
+              📊 Steady Build
+            </button>
+            <button 
+              @click="selectDecision('Fortress')"
+              class="decision-btn"
+              :class="{ selected: selectedDecision === 'Fortress' }"
+            >
+              🏰 Fortress
+            </button>
+            <button 
+              @click="selectDecision('Pivot')"
+              class="decision-btn"
+              :class="{ selected: selectedDecision === 'Pivot' }"
+            >
+              🔄 Pivot
+            </button>
+          </div>
+
+          <!-- IMPACT PREVIEW (when decision selected) -->
+          <div v-if="selectedDecision && !decisionLocked" class="impact-preview">
+            <h4>📊 Impact Preview: {{ selectedDecision }}</h4>
+            <div class="impact-grid">
+              <div class="impact-item">
+                <span class="impact-label">💰 Cash Strength:</span>
+                <span class="impact-value" :class="previewKpi.cash < 10 ? 'critical' : previewKpi.cash < currentKpis.cash ? 'negative' : 'positive'">
+                  {{ currentKpis.cash }} → {{ previewKpi.cash }}
+                </span>
+              </div>
+              <div class="impact-item">
+                <span class="impact-label">📈 Market Share:</span>
+                <span class="impact-value" :class="previewKpi.market < 5 ? 'critical' : previewKpi.market < currentKpis.market ? 'negative' : 'positive'">
+                  {{ currentKpis.market }} → {{ previewKpi.market }}
+                </span>
+              </div>
+              <div class="impact-item">
+                <span class="impact-label">⛓️ Supply Stability:</span>
+                <span class="impact-value" :class="previewKpi.supply < 20 ? 'critical' : previewKpi.supply < currentKpis.supply ? 'negative' : 'positive'">
+                  {{ currentKpis.supply }} → {{ previewKpi.supply }}
+                </span>
+              </div>
+              <div class="impact-item">
+                <span class="impact-label">🚀 Disruption Readiness:</span>
+                <span class="impact-value" :class="previewKpi.disruption < 15 ? 'critical' : previewKpi.disruption < currentKpis.disruption ? 'negative' : 'positive'">
+                  {{ currentKpis.disruption }} → {{ previewKpi.disruption }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- WARNING BOX (if critical thresholds will be crossed) -->
+          <div v-if="selectedDecision && !decisionLocked && criticalWarnings.length > 0" class="warning-box">
+            <h4>⚠️ WARNING: CRITICAL RISK</h4>
+            <p>This decision will push your company into dangerous territory:</p>
+            <div class="warning-items">
+              <ul>
+                <li v-for="warning in criticalWarnings" :key="warning">{{ warning }}</li>
+              </ul>
+            </div>
+            <p style="font-weight: 600;">Do you understand the risks and want to proceed?</p>
+          </div>
+
+          <button 
+            v-if="!decisionLocked && selectedDecision"
+            @click="submitDecision"
+            class="btn submit-btn"
+            :class="criticalWarnings.length > 0 ? 'btn-warning' : ''"
+          >
+            {{ criticalWarnings.length > 0 ? '⚠️ Submit Despite Risks' : 'Submit Decision' }}
+          </button>
+
+          <div v-if="decisionLocked" class="decision-locked">
+            ✅ Decision Locked: {{ latestDecisions[teamParam] || selectedDecision }}
+          </div>
+          <div v-if="decisionLocked" class="waiting-message" style="margin-top: 12px;">
+            ⏳ Waiting for trainer to resolve this round...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRAINER DASHBOARD -->
+    <div v-else-if="role === 'trainer'" class="container">
+      <div class="header">
+        <div>
+          <h1>Trainer Dashboard</h1>
+          <p style="color: #6b7280;">Year {{ currentYear }}, Semester {{ currentSemester }} — Decision {{ decisionNumber }} of 20</p>
+        </div>
+      </div>
+
+      <div v-if="errorMsg" class="error-message">{{ errorMsg }}</div>
+
+      <div class="trainer-dashboard">
+        <!-- TEAM A PANEL -->
+        <div class="team-panel">
+          <h3>{{ teamAName || 'Team A' }}</h3>
+          <div class="team-kpi">
+            <span class="team-kpi-label">Cash Strength</span>
+            <span class="team-kpi-value">{{ teamAKpi.cash }}</span>
+          </div>
+          <div class="team-kpi">
+            <span class="team-kpi-label">Market Share</span>
+            <span class="team-kpi-value">{{ teamAKpi.market }}</span>
+          </div>
+          <div class="team-kpi">
+            <span class="team-kpi-label">Supply Stability</span>
+            <span class="team-kpi-value">{{ teamAKpi.supply }}</span>
+          </div>
+          <div class="team-kpi">
+            <span class="team-kpi-label">Disruption Readiness</span>
+            <span class="team-kpi-value">{{ teamAKpi.disruption }}</span>
+          </div>
+          <div class="latest-decision">
+            <div class="latest-decision-label">Latest Decision</div>
+            <div class="latest-decision-value">{{ latestDecisions.A || 'Awaiting decision...' }}</div>
+          </div>
+        </div>
+
+        <!-- TEAM B PANEL -->
+        <div class="team-panel">
+          <h3>{{ teamBName || 'Team B' }}</h3>
+          <div class="team-kpi">
+            <span class="team-kpi-label">Cash Strength</span>
+            <span class="team-kpi-value">{{ teamBKpi.cash }}</span>
+          </div>
+          <div class="team-kpi">
+            <span class="team-kpi-label">Market Share</span>
+            <span class="team-kpi-value">{{ teamBKpi.market }}</span>
+          </div>
+          <div class="team-kpi">
+            <span class="team-kpi-label">Supply Stability</span>
+            <span class="team-kpi-value">{{ teamBKpi.supply }}</span>
+          </div>
+          <div class="team-kpi">
+            <span class="team-kpi-label">Disruption Readiness</span>
+            <span class="team-kpi-value">{{ teamBKpi.disruption }}</span>
+          </div>
+          <div class="latest-decision">
+            <div class="latest-decision-label">Latest Decision</div>
+            <div class="latest-decision-value">{{ latestDecisions.B || 'Awaiting decision...' }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENARIO DISPLAY FOR TRAINER -->
+      <div v-if="currentScenario" class="scenario-box">
+        <h3>📊 Current Scenario (Year {{ currentYear }}, Semester {{ currentSemester }})</h3>
+        <p>{{ currentScenario.narrative }}</p>
+        <p style="font-weight: bold; margin-top: 12px;">Porter's Five Forces:</p>
+        <div class="forces-display">
+          <div class="force-item">
+            <span class="force-label">Supplier Power:</span>
+            <span class="force-value">{{ currentScenario.forces.supplierPower }}/10</span>
+          </div>
+          <div class="force-item">
+            <span class="force-label">Buyer Power:</span>
+            <span class="force-value">{{ currentScenario.forces.buyerPower }}/10</span>
+          </div>
+          <div class="force-item">
+            <span class="force-label">New Entrants:</span>
+            <span class="force-value">{{ currentScenario.forces.threatOfNewEntrants }}/10</span>
+          </div>
+          <div class="force-item">
+            <span class="force-label">Substitutes:</span>
+            <span class="force-value">{{ currentScenario.forces.threatOfSubstitutes }}/10</span>
+          </div>
+          <div class="force-item">
+            <span class="force-label">Rivalry:</span>
+            <span class="force-value">{{ currentScenario.forces.competitiveRivalry }}/10</span>
+          </div>
+          <div class="force-item">
+            <span class="force-label">Economic Context:</span>
+            <span class="force-value">{{ currentScenario.economicContext }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRAINER CONTROLS -->
+      <div style="margin-top: 30px;">
+        <h3 style="color: #1e3a8a; margin-bottom: 16px;">Round Controls</h3>
+        <div class="trainer-controls">
+          <button @click="resolveSemester" class="btn btn-danger">
+            Resolve Round & Calculate Results
+          </button>
+          <button @click="unlockNextRound" class="btn btn-success">
+            → Unlock Next Round
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOADING STATE -->
+    <div v-else class="container">
+      <div class="loading">⏳ Loading game...</div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwqGu0D1nbc1xAXFPPle5I-DmoDF5MuQqAhUilgEqoF74lt1_QvgqgSr0eZdXJipb2N/exec';
+
+    const CAUSALITY_MATRIX = {
+      'Rapid Expansion': {
+        base: { cash: -20, market: +12, supply: -10, disruption: -5 },
+        high_supplier: { cash: -5, market: 0, supply: -15, disruption: 0 },
+        high_buyer: { cash: -10, market: +5, supply: 0, disruption: 0 },
+        high_new_entrants: { cash: -8, market: -5, supply: 0, disruption: -5 },
+        high_substitutes: { cash: -10, market: -8, supply: 0, disruption: -10 },
+        high_rivalry: { cash: -12, market: -3, supply: 0, disruption: 0 }
+      },
+      'Steady Build': {
+        base: { cash: -8, market: +5, supply: +8, disruption: +3 },
+        high_supplier: { cash: -3, market: 0, supply: -5, disruption: 0 },
+        high_buyer: { cash: -2, market: +2, supply: 0, disruption: 0 },
+        high_new_entrants: { cash: -2, market: -2, supply: 0, disruption: +2 },
+        high_substitutes: { cash: -3, market: -2, supply: 0, disruption: +1 },
+        high_rivalry: { cash: -2, market: -1, supply: 0, disruption: 0 }
+      },
+      'Fortress': {
+        base: { cash: -5, market: -5, supply: +18, disruption: +12 },
+        high_supplier: { cash: +5, market: 0, supply: +10, disruption: 0 },
+        high_buyer: { cash: +8, market: -8, supply: 0, disruption: 0 },
+        high_new_entrants: { cash: +3, market: +2, supply: 0, disruption: +8 },
+        high_substitutes: { cash: +2, market: 0, supply: 0, disruption: +10 },
+        high_rivalry: { cash: +5, market: +3, supply: 0, disruption: 0 }
+      },
+      'Pivot': {
+        base: { cash: -25, market: -20, supply: -20, disruption: +25 },
+        high_supplier: { cash: -10, market: 0, supply: -10, disruption: +5 },
+        high_buyer: { cash: -5, market: -10, supply: 0, disruption: +8 },
+        high_new_entrants: { cash: -8, market: -5, supply: 0, disruption: +15 },
+        high_substitutes: { cash: -12, market: -10, supply: 0, disruption: +20 },
+        high_rivalry: { cash: -10, market: -8, supply: 0, disruption: +10 }
+      }
+    };
+
+    createApp({
+      setup() {
+        // Refs
+        const sessionId = ref(null);
+        const teamParam = ref(null);
+        const role = ref(null);
+
+        const trainerEmail = ref('');
+        const teamANameInput = ref('');
+        const teamBNameInput = ref('');
+
+        const currentYear = ref(1);
+        const currentSemester = ref(1);
+        const teamAName = ref('');
+        const teamBName = ref('');
+        const currentScenario = ref(null);
+        const selectedDecision = ref(null);
+        const decisionLocked = ref(false);
+
+        const currentKpis = ref({ cash: 50, market: 50, supply: 50, disruption: 50 });
+        const teamAKpi = ref({ cash: 50, market: 50, supply: 50, disruption: 50 });
+        const teamBKpi = ref({ cash: 50, market: 50, supply: 50, disruption: 50 });
+
+        const latestDecisions = ref({ A: null, B: null });
+
+        const showIntro = ref(false);
+        const errorMsg = ref('');
+        const successMsg = ref('');
+        const sessionUrls = ref(null);
+        const newSessionId = ref('');
+
+        const pollInterval = ref(null);
+
+        // Computed
+        const decisionNumber = computed(() => {
+          return (currentYear.value - 1) * 2 + currentSemester.value;
+        });
+
+        const previewKpi = computed(() => {
+          if (!selectedDecision.value) return currentKpis.value;
+          return calculatePreviewKpi(selectedDecision.value, currentKpis.value, currentScenario.value);
+        });
+
+        const criticalWarnings = computed(() => {
+          if (!selectedDecision.value) return [];
+          const warnings = [];
+          if (previewKpi.value.cash < 10) warnings.push('💰 Cash Strength will drop below 10 (CRITICAL)');
+          if (previewKpi.value.market < 5) warnings.push('📈 Market Share will drop below 5 (CRITICAL)');
+          if (previewKpi.value.supply < 20) warnings.push('⛓️ Supply Stability will drop below 20 (CRITICAL)');
+          if (previewKpi.value.disruption < 15) warnings.push('🚀 Disruption Readiness will drop below 15 (CRITICAL)');
+          return warnings;
+        });
+
+        // Methods
+        const getScenario = () => {
+          const scenarios = {
+            '1-1': {
+              title: 'Stable Markets',
+              narrative: 'The electronics market remains stable. Demand is predictable. Your legacy customers expect reliable delivery.',
+              forces: { supplierPower: 4, buyerPower: 5, threatOfNewEntrants: 3, threatOfSubstitutes: 4, competitiveRivalry: 5 },
+              economicContext: 'Steady growth'
+            },
+            '1-2': {
+              title: 'Market Uncertainty Grows',
+              narrative: 'Early signals of disruption appear. Some customers are asking about alternative suppliers. Supply chains are tightening.',
+              forces: { supplierPower: 6, buyerPower: 6, threatOfNewEntrants: 5, threatOfSubstitutes: 6, competitiveRivalry: 6 },
+              economicContext: 'Cautious outlook'
+            },
+            '2-1': {
+              title: 'Competitive Pressure Mounts',
+              narrative: 'New entrants are undercutting on price. Your best customers are getting offers. Suppliers are raising margins.',
+              forces: { supplierPower: 7, buyerPower: 7, threatOfNewEntrants: 7, threatOfSubstitutes: 5, competitiveRivalry: 7 },
+              economicContext: 'Rising pressure'
+            },
+            '2-2': {
+              title: 'Technology Shift Accelerates',
+              narrative: 'A new technology emerges that can replace 30% of your core products. Adoption is uncertain but gaining momentum.',
+              forces: { supplierPower: 6, buyerPower: 8, threatOfNewEntrants: 8, threatOfSubstitutes: 8, competitiveRivalry: 7 },
+              economicContext: 'Technological disruption'
+            },
+            '3-1': {
+              title: 'Market Fragmentation',
+              narrative: 'The market splits into niches. Volume players struggle. Specialists thrive. Where does Aureon fit?',
+              forces: { supplierPower: 5, buyerPower: 7, threatOfNewEntrants: 6, threatOfSubstitutes: 7, competitiveRivalry: 8 },
+              economicContext: 'Fragmented demand'
+            },
+            '3-2': {
+              title: 'Consolidation Begins',
+              narrative: 'Larger competitors are acquiring smaller players. The industry is reshaping. Acquisition offers are circulating.',
+              forces: { supplierPower: 7, buyerPower: 6, threatOfNewEntrants: 4, threatOfSubstitutes: 6, competitiveRivalry: 6 },
+              economicContext: 'M&A wave'
+            },
+            '4-1': {
+              title: 'Digital Disruption Accelerates',
+              narrative: 'Software-based solutions begin replacing hardware. Customer loyalty erodes. Your R&D budget is questioned.',
+              forces: { supplierPower: 5, buyerPower: 8, threatOfNewEntrants: 9, threatOfSubstitutes: 9, competitiveRivalry: 8 },
+              economicContext: 'Digital transformation'
+            },
+            '4-2': {
+              title: 'Supply Chain Crisis',
+              narrative: 'Key suppliers fail. Logistics costs spike. Customers demand shorter lead times. The traditional supply chain breaks.',
+              forces: { supplierPower: 9, buyerPower: 7, threatOfNewEntrants: 5, threatOfSubstitutes: 6, competitiveRivalry: 7 },
+              economicContext: 'Supply shock'
+            },
+            '5-1': {
+              title: 'Market Consolidation',
+              narrative: 'Three large players now control 60% of the market. Niche players are struggling. Industry structure is hardening.',
+              forces: { supplierPower: 6, buyerPower: 8, threatOfNewEntrants: 3, threatOfSubstitutes: 7, competitiveRivalry: 5 },
+              economicContext: 'Oligopoly forming'
+            },
+            '5-2': {
+              title: 'New Market Opportunity',
+              narrative: 'Emerging markets open up. Demand for reliable electronics surges in developing regions. A new frontier emerges.',
+              forces: { supplierPower: 4, buyerPower: 4, threatOfNewEntrants: 6, threatOfSubstitutes: 3, competitiveRivalry: 5 },
+              economicContext: 'Emerging markets boom'
+            },
+            '6-1': {
+              title: 'Regulatory Shift',
+              narrative: 'New environmental regulations reshape the industry. Compliance costs rise. Competitors struggle. Aureon\'s compliance position is strong.',
+              forces: { supplierPower: 5, buyerPower: 6, threatOfNewEntrants: 7, threatOfSubstitutes: 5, competitiveRivalry: 6 },
+              economicContext: 'Regulatory disruption'
+            },
+            '6-2': {
+              title: 'Artificial Intelligence Integration',
+              narrative: 'AI-driven systems are reshaping product expectations. Customers demand smart, connected devices. Legacy products age rapidly.',
+              forces: { supplierPower: 5, buyerPower: 7, threatOfNewEntrants: 8, threatOfSubstitutes: 8, competitiveRivalry: 8 },
+              economicContext: 'AI revolution'
+            },
+            '7-1': {
+              title: 'Economic Downturn',
+              narrative: 'Recession looms. Capital spending freezes. Customers delay purchases. Suppliers demand shorter payment terms.',
+              forces: { supplierPower: 7, buyerPower: 9, threatOfNewEntrants: 2, threatOfSubstitutes: 5, competitiveRivalry: 8 },
+              economicContext: 'Recession risk'
+            },
+            '7-2': {
+              title: 'Partnership Opportunity',
+              narrative: 'A tech giant proposes a partnership to integrate Aureon components into their ecosystem. A game changer or a trap?',
+              forces: { supplierPower: 8, buyerPower: 6, threatOfNewEntrants: 7, threatOfSubstitutes: 6, competitiveRivalry: 6 },
+              economicContext: 'Strategic opportunity'
+            },
+            '8-1': {
+              title: 'Market Recovery',
+              narrative: 'The economy rebounds. Demand for legacy products resurges. Supply chains stabilize. A breathing room opens.',
+              forces: { supplierPower: 4, buyerPower: 5, threatOfNewEntrants: 5, threatOfSubstitutes: 5, competitiveRivalry: 6 },
+              economicContext: 'Recovery phase'
+            },
+            '8-2': {
+              title: 'Talent Crisis',
+              narrative: 'Top engineers are leaving for tech startups. Recruiting becomes expensive. Innovation slows. Culture erodes.',
+              forces: { supplierPower: 6, buyerPower: 6, threatOfNewEntrants: 7, threatOfSubstitutes: 7, competitiveRivalry: 7 },
+              economicContext: 'Talent competition'
+            },
+            '9-1': {
+              title: 'Final Consolidation',
+              narrative: 'The industry landscape solidifies. Winners and losers are clear. Acquisition offers are the last chance for some.',
+              forces: { supplierPower: 5, buyerPower: 7, threatOfNewEntrants: 2, threatOfSubstitutes: 6, competitiveRivalry: 4 },
+              economicContext: 'Consolidation end game'
+            },
+            '9-2': {
+              title: 'Independence at a Crossroads',
+              narrative: 'Aureon\'s independence hangs in the balance. The decisions made over the past 8 years have shaped this moment. Last semester begins.',
+              forces: { supplierPower: 6, buyerPower: 6, threatOfNewEntrants: 6, threatOfSubstitutes: 6, competitiveRivalry: 6 },
+              economicContext: 'Critical juncture'
+            },
+            '10-1': {
+              title: 'Final Decision',
+              narrative: 'The last strategic decision looms. Will Aureon remain independent? Will it pivot? Will it be acquired? The market will decide based on your moves.',
+              forces: { supplierPower: 5, buyerPower: 5, threatOfNewEntrants: 5, threatOfSubstitutes: 5, competitiveRivalry: 5 },
+              economicContext: 'Final chapter'
+            },
+            '10-2': {
+              title: 'The End Game',
+              narrative: 'The simulation concludes. Aureon\'s fate is sealed by the cumulative weight of 20 strategic decisions. Reflection and learning begin.',
+              forces: { supplierPower: 5, buyerPower: 5, threatOfNewEntrants: 5, threatOfSubstitutes: 5, competitiveRivalry: 5 },
+              economicContext: 'Conclusion'
+            }
+          };
+
+          const key = `${currentYear.value}-${currentSemester.value}`;
+          return scenarios[key] || {
+            title: 'Unknown Scenario',
+            narrative: 'Scenario data not available.',
+            forces: { supplierPower: 5, buyerPower: 5, threatOfNewEntrants: 5, threatOfSubstitutes: 5, competitiveRivalry: 5 },
+            economicContext: 'Unknown'
+          };
+        };
+
+        const calculatePreviewKpi = (decision, current, scenario) => {
+          if (!decision || !CAUSALITY_MATRIX[decision] || !scenario) {
+            return current;
+          }
+
+          const matrix = CAUSALITY_MATRIX[decision];
+          const impact = JSON.parse(JSON.stringify(matrix.base));
+
+          if (scenario.forces.supplierPower >= 7) {
+            addImpact(impact, matrix.high_supplier);
+          }
+          if (scenario.forces.buyerPower >= 7) {
+            addImpact(impact, matrix.high_buyer);
+          }
+          if (scenario.forces.threatOfNewEntrants >= 7) {
+            addImpact(impact, matrix.high_new_entrants);
+          }
+          if (scenario.forces.threatOfSubstitutes >= 7) {
+            addImpact(impact, matrix.high_substitutes);
+          }
+          if (scenario.forces.competitiveRivalry >= 7) {
+            addImpact(impact, matrix.high_rivalry);
+          }
+
+          return {
+            cash: clamp(current.cash + impact.cash, 0, 100),
+            market: clamp(current.market + impact.market, 0, 100),
+            supply: clamp(current.supply + impact.supply, 0, 100),
+            disruption: clamp(current.disruption + impact.disruption, 0, 100)
+          };
+        };
+
+        const addImpact = (target, source) => {
+          target.cash += source.cash;
+          target.market += source.market;
+          target.supply += source.supply;
+          target.disruption += source.disruption;
+        };
+
+        const clamp = (value, min, max) => {
+          return Math.max(min, Math.min(max, value));
+        };
+
+        const createSession = async () => {
+          try {
+            errorMsg.value = '';
+            const response = await fetch(`${APPS_SCRIPT_URL}?action=create_session&trainerEmail=${encodeURIComponent(trainerEmail.value)}&teamAName=${encodeURIComponent(teamANameInput.value)}&teamBName=${encodeURIComponent(teamBNameInput.value)}`);
+            const data = await response.json();
+            if (data.success) {
+              newSessionId.value = data.data.sessionId;
+              const baseUrl = window.location.origin + window.location.pathname;
+              sessionUrls.value = {
+                teamA: `${baseUrl}?session=${data.data.sessionId}&team=A`,
+                teamB: `${baseUrl}?session=${data.data.sessionId}&team=B`,
+                trainer: `${baseUrl}?session=${data.data.sessionId}&role=trainer`
+              };
+            } else {
+              errorMsg.value = data.message || 'Failed to create session';
+            }
+          } catch (error) {
+            errorMsg.value = 'Error creating session: ' + error.message;
+          }
+        };
+
+        const startGame = () => {
+          showIntro.value = false;
+          currentScenario.value = getScenario();
+        };
+
+        const selectDecision = (decision) => {
+          if (!decisionLocked.value) {
+            selectedDecision.value = decision;
+          }
+        };
+
+        const submitDecision = async () => {
+          try {
+            errorMsg.value = '';
+            const response = await fetch(`${APPS_SCRIPT_URL}?action=submit_decision&sessionId=${sessionId.value}&teamName=${teamParam.value}&decision=${encodeURIComponent(selectedDecision.value)}`);
+            const data = await response.json();
+            if (data.success) {
+              decisionLocked.value = true;
+              successMsg.value = 'Decision submitted! Waiting for trainer...';
+              latestDecisions.value[teamParam.value] = selectedDecision.value;
+            } else {
+              errorMsg.value = data.message || 'Failed to submit decision';
+            }
+          } catch (error) {
+            errorMsg.value = 'Error submitting decision: ' + error.message;
+          }
+        };
+
+        const resolveSemester = async () => {
+          try {
+            errorMsg.value = '';
+            const response = await fetch(`${APPS_SCRIPT_URL}?action=resolve_semester&sessionId=${sessionId.value}`);
+            const data = await response.json();
+            if (data.success) {
+              await loadSessionData();
+              currentScenario.value = getScenario();
+            } else {
+              errorMsg.value = data.message || 'Failed to resolve semester';
+            }
+          } catch (error) {
+            errorMsg.value = 'Error resolving semester: ' + error.message;
+          }
+        };
+
+        const unlockNextRound = async () => {
+          try {
+            errorMsg.value = '';
+            const response = await fetch(`${APPS_SCRIPT_URL}?action=unlock_next_round&sessionId=${sessionId.value}`);
+            const data = await response.json();
+            if (data.success) {
+              await loadSessionData();
+              currentScenario.value = getScenario();
+            } else {
+              errorMsg.value = data.message || 'Failed to unlock next round';
+            }
+          } catch (error) {
+            errorMsg.value = 'Error unlocking next round: ' + error.message;
+          }
+        };
+
+        const loadSessionData = async () => {
+          try {
+            const response = await fetch(`${APPS_SCRIPT_URL}?action=get_session&sessionId=${sessionId.value}`);
+            const data = await response.json();
+            if (data.success) {
+              const session = data.data.session;
+              const yearChanged = currentYear.value !== parseInt(session.currentYear);
+              const semesterChanged = currentSemester.value !== parseInt(session.currentSemester);
+
+              currentYear.value = parseInt(session.currentYear);
+              currentSemester.value = parseInt(session.currentSemester);
+              teamAName.value = session.teamAName;
+              teamBName.value = session.teamBName;
+              latestDecisions.value = data.data.decisions || {};
+
+              if (data.data.kpis) {
+                if (data.data.kpis.A) teamAKpi.value = data.data.kpis.A;
+                if (data.data.kpis.B) teamBKpi.value = data.data.kpis.B;
+                if (teamParam.value === 'A') currentKpis.value = teamAKpi.value;
+                else if (teamParam.value === 'B') currentKpis.value = teamBKpi.value;
+              }
+
+              if (yearChanged || semesterChanged) {
+                currentScenario.value = getScenario();
+                selectedDecision.value = null;
+                decisionLocked.value = false;
+                successMsg.value = '';
+              }
+
+              if (!currentScenario.value) {
+                currentScenario.value = getScenario();
+              }
+            }
+          } catch (error) {
+            console.error('Failed to load session:', error);
+          }
+        };
+
+        const startPolling = () => {
+          if (pollInterval.value) clearInterval(pollInterval.value);
+          pollInterval.value = setInterval(() => {
+            loadSessionData();
+          }, 5000);
+        };
+
+        // Lifecycle
+        onMounted(() => {
+          const params = new URLSearchParams(window.location.search);
+          sessionId.value = params.get('session');
+          teamParam.value = params.get('team');
+          role.value = params.get('role');
+
+          if (sessionId.value && teamParam.value) {
+            showIntro.value = true;
+            loadSessionData();
+            startPolling();
+          } else if (sessionId.value && role.value === 'trainer') {
+            loadSessionData();
+            startPolling();
+          }
+        });
+
+        return {
+          sessionId,
+          teamParam,
+          role,
+          trainerEmail,
+          teamANameInput,
+          teamBNameInput,
+          currentYear,
+          currentSemester,
+          teamAName,
+          teamBName,
+          currentScenario,
+          selectedDecision,
+          decisionLocked,
+          currentKpis,
+          teamAKpi,
+          teamBKpi,
+          latestDecisions,
+          showIntro,
+          errorMsg,
+          successMsg,
+          sessionUrls,
+          newSessionId,
+          decisionNumber,
+          previewKpi,
+          criticalWarnings,
+          createSession,
+          startGame,
+          selectDecision,
+          submitDecision,
+          resolveSemester,
+          unlockNextRound
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
