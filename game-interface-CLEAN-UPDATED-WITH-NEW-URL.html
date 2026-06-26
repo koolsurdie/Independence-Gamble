@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Independence Gamble</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: #333;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    #app {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .session-setup {
+      background: white;
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .session-setup h1 {
+      font-size: 32px;
+      color: #1e3c72;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .session-setup .subtitle {
+      text-align: center;
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 32px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: bold;
+      color: #1e3c72;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #2a5298;
+    }
+
+    .form-group input::placeholder {
+      color: #999;
+    }
+
+    .btn-create-session {
+      width: 100%;
+      background: linear-gradient(135deg, #2a5298, #4a7ba7);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 24px;
+      transition: all 0.3s;
+    }
+
+    .btn-create-session:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(42, 82, 152, 0.4);
+    }
+
+    .btn-create-session:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .status-message {
+      padding: 12px;
+      border-radius: 4px;
+      margin-top: 16px;
+      font-size: 13px;
+    }
+
+    .status-message.loading {
+      background: #d1ecf1;
+      border: 1px solid #bee5eb;
+      color: #0c5460;
+    }
+
+    .status-message.success {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+
+    .status-message.error {
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+
+    .urls-container {
+      background: white;
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .urls-header {
+      margin-bottom: 32px;
+      text-align: center;
+    }
+
+    .urls-header h1 {
+      font-size: 28px;
+      color: #1e3c72;
+      margin-bottom: 8px;
+    }
+
+    .urls-header p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .url-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    @media (max-width: 768px) {
+      .url-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .url-card {
+      background: #f9f9f9;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .url-card.trainer-card {
+      grid-column: 1 / -1;
+      background: #fff3cd;
+      border-color: #ffc107;
+    }
+
+    .url-card h3 {
+      color: #1e3c72;
+      margin-bottom: 12px;
+      font-size: 16px;
+    }
+
+    .url-card.trainer-card h3 {
+      color: #856404;
+    }
+
+    .url-display {
+      background: white;
+      padding: 12px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      word-break: break-all;
+      color: #333;
+      margin-bottom: 12px;
+      max-height: 80px;
+      overflow-y: auto;
+    }
+
+    .btn-copy {
+      display: block;
+      width: 100%;
+      background: #2a5298;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-copy:hover {
+      background: #1e3c72;
+    }
+
+    .btn-copy.copied {
+      background: #28a745;
+    }
+
+    .continue-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #2a5298, #4a7ba7);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 24px;
+      transition: all 0.3s;
+    }
+
+    .continue-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(42, 82, 152, 0.4);
+    }
+
+    .header {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .header h1 {
+      font-size: 24px;
+      color: #1e3c72;
+    }
+    
+    .header-meta {
+      text-align: right;
+      font-size: 14px;
+      color: #666;
+    }
+    
+    .round-badge {
+      background: #2a5298;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    
+    .team-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    @media (max-width: 1024px) {
+      .team-container {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .team-panel {
+      background: white;
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .team-panel h2 {
+      font-size: 20px;
+      margin-bottom: 16px;
+      color: #1e3c72;
+    }
+    
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .kpi-card {
+      background: #f5f5f5;
+      padding: 12px;
+      border-radius: 6px;
+      border-left: 4px solid #2a5298;
+    }
+    
+    .kpi-name {
+      font-size: 12px;
+      font-weight: bold;
+      color: #666;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+    
+    .kpi-value {
+      font-size: 28px;
+      font-weight: bold;
+      color: #1e3c72;
+    }
+    
+    .kpi-bar {
+      width: 100%;
+      height: 6px;
+      background: #ddd;
+      border-radius: 3px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    
+    .kpi-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #2a5298, #4a7ba7);
+      border-radius: 3px;
+    }
+    
+    .decision-section {
+      margin-top: 24px;
+      border-top: 1px solid #eee;
+      padding-top: 24px;
+    }
+    
+    .decision-section h3 {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+    
+    .decision-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    
+    .decision-btn {
+      background: white;
+      border: 2px solid #2a5298;
+      padding: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: bold;
+      color: #1e3c72;
+      transition: all 0.2s;
+      text-align: left;
+    }
+    
+    .decision-btn:hover {
+      background: #f5f5f5;
+    }
+    
+    .decision-btn.selected {
+      background: #2a5298;
+      color: white;
+    }
+
+    .decision-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .decision-btn strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+    
+    .decision-btn small {
+      font-size: 11px;
+      opacity: 0.8;
+    }
+    
+    .submit-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #2a5298, #4a7ba7);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .submit-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(42, 82, 152, 0.3);
+    }
+    
+    .submit-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .trainer-container {
+      background: white;
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .trainer-header {
+      margin-bottom: 24px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 16px;
+    }
+    
+    .trainer-header h2 {
+      font-size: 20px;
+      color: #1e3c72;
+      margin-bottom: 12px;
+    }
+    
+    .trainer-controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    
+    .trainer-btn {
+      background: #2a5298;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+    
+    .trainer-btn:hover {
+      background: #1e3c72;
+    }
+    
+    .trainer-btn.secondary {
+      background: #ddd;
+      color: #333;
+    }
+    
+    .trainer-btn.secondary:hover {
+      background: #ccc;
+    }
+    
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 24px;
+    }
+    
+    .team-summary {
+      background: #f9f9f9;
+      padding: 16px;
+      border-radius: 6px;
+    }
+    
+    .team-summary h3 {
+      color: #1e3c72;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+    
+    .summary-kpi {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 13px;
+    }
+    
+    .summary-kpi:last-child {
+      border-bottom: none;
+    }
+    
+    .summary-kpi-value {
+      font-weight: bold;
+      color: #2a5298;
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        gap: 12px;
+      }
+      
+      .decision-buttons {
+        grid-template-columns: 1fr;
+      }
+      
+      .comparison-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    const { createApp, ref, computed, reactive } = Vue;
+
+    const app = createApp({
+      template: `
+        <!-- SESSION SETUP SCREEN -->
+        <div v-if="currentScreen === 'setup'" class="session-setup">
+          <h1>Create New Session</h1>
+          <p class="subtitle">Set up your Independence Gamble session</p>
+
+          <form @submit.prevent="createSession">
+            <div class="form-group">
+              <label for="teamAName">Team A Name</label>
+              <input 
+                id="teamAName"
+                v-model="setupTeamAName" 
+                type="text" 
+                placeholder="e.g., Strategic Innovators"
+                required
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="teamBName">Team B Name</label>
+              <input 
+                id="teamBName"
+                v-model="setupTeamBName" 
+                type="text" 
+                placeholder="e.g., Market Leaders"
+                required
+              >
+            </div>
+
+            <button 
+              type="submit"
+              class="btn-create-session"
+              :disabled="isCreatingSession"
+            >
+              {{ isCreatingSession ? '⏳ Creating...' : '✓ Create Session' }}
+            </button>
+
+            <div v-if="setupStatus" :class="['status-message', setupStatus.type]">
+              {{ setupStatus.message }}
+            </div>
+          </form>
+        </div>
+
+        <!-- URL DISPLAY SCREEN -->
+        <div v-else-if="currentScreen === 'urls'" class="urls-container">
+          <div class="urls-header">
+            <h1>✓ Session Created!</h1>
+            <p>Copy these URLs and share with your teams</p>
+          </div>
+
+          <div class="url-cards">
+            <div class="url-card">
+              <h3>🎮 Team A: {{ teamAName }}</h3>
+              <div class="url-display">{{ teamAUrl }}</div>
+              <button class="btn-copy" @click="copyToClipboard(teamAUrl, 'teamA')">
+                {{ copiedURL === 'teamA' ? '✓ Copied!' : 'Copy URL' }}
+              </button>
+            </div>
+
+            <div class="url-card">
+              <h3>🎮 Team B: {{ teamBName }}</h3>
+              <div class="url-display">{{ teamBUrl }}</div>
+              <button class="btn-copy" @click="copyToClipboard(teamBUrl, 'teamB')">
+                {{ copiedURL === 'teamB' ? '✓ Copied!' : 'Copy URL' }}
+              </button>
+            </div>
+
+            <div class="url-card trainer-card">
+              <h3>📊 Your Trainer Dashboard</h3>
+              <div class="url-display">{{ trainerUrl }}</div>
+              <button class="btn-copy" @click="copyToClipboard(trainerUrl, 'trainer')">
+                {{ copiedURL === 'trainer' ? '✓ Copied!' : 'Copy URL' }}
+              </button>
+            </div>
+          </div>
+
+          <button class="continue-btn" @click="proceedToDashboard">
+            → Go to Dashboard
+          </button>
+        </div>
+
+        <!-- TEAM GAME SCREEN -->
+        <div v-else-if="currentScreen === 'game-team'" class="team-container">
+          <div class="team-panel">
+            <h2>Aureon Devices - Team {{ userTeam }}</h2>
+            
+            <div class="kpi-grid">
+              <div class="kpi-card">
+                <div class="kpi-name">💰 Cash Strength</div>
+                <div class="kpi-value">{{ currentState.cash }}%</div>
+                <div class="kpi-bar">
+                  <div class="kpi-bar-fill" :style="{ width: currentState.cash + '%' }"></div>
+                </div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-name">📈 Market Share</div>
+                <div class="kpi-value">{{ currentState.market }}%</div>
+                <div class="kpi-bar">
+                  <div class="kpi-bar-fill" :style="{ width: currentState.market + '%' }"></div>
+                </div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-name">⛓️ Supply Stability</div>
+                <div class="kpi-value">{{ currentState.supply }}%</div>
+                <div class="kpi-bar">
+                  <div class="kpi-bar-fill" :style="{ width: currentState.supply + '%' }"></div>
+                </div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-name">🚀 Disruption Readiness</div>
+                <div class="kpi-value">{{ currentState.disruption }}%</div>
+                <div class="kpi-bar">
+                  <div class="kpi-bar-fill" :style="{ width: currentState.disruption + '%' }"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="decision-section">
+              <h3>Your Decision (Y{{ currentYear }}S{{ currentSemester }})</h3>
+
+              <div class="decision-buttons">
+                <button 
+                  class="decision-btn"
+                  :class="{ selected: selectedDecision === 'Rapid Expansion' }"
+                  @click="selectedDecision = 'Rapid Expansion'"
+                  :disabled="decisionSubmitted"
+                >
+                  <strong>🚀 Rapid Expansion</strong>
+                  <small>Go big, burn cash</small>
+                </button>
+
+                <button 
+                  class="decision-btn"
+                  :class="{ selected: selectedDecision === 'Steady Build' }"
+                  @click="selectedDecision = 'Steady Build'"
+                  :disabled="decisionSubmitted"
+                >
+                  <strong>📊 Steady Build</strong>
+                  <small>Profitable growth</small>
+                </button>
+
+                <button 
+                  class="decision-btn"
+                  :class="{ selected: selectedDecision === 'Fortress' }"
+                  @click="selectedDecision = 'Fortress'"
+                  :disabled="decisionSubmitted"
+                >
+                  <strong>🛡️ Fortress</strong>
+                  <small>Protect what you have</small>
+                </button>
+
+                <button 
+                  class="decision-btn"
+                  :class="{ selected: selectedDecision === 'Pivot' }"
+                  @click="selectedDecision = 'Pivot'"
+                  :disabled="decisionSubmitted"
+                >
+                  <strong>🔄 Pivot</strong>
+                  <small>New market</small>
+                </button>
+              </div>
+
+              <button 
+                class="submit-btn"
+                @click="submitDecision"
+                :disabled="!selectedDecision || isSubmitting || decisionSubmitted"
+              >
+                {{ decisionSubmitted ? '✓ Decision Locked' : (isSubmitting ? 'Submitting...' : 'Submit Decision') }}
+              </button>
+
+              <div v-if="submissionStatus" :class="['status-message', submissionStatus.type]">
+                {{ submissionStatus.message }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TRAINER DASHBOARD SCREEN -->
+        <div v-else-if="currentScreen === 'game-trainer'" class="trainer-container">
+          <div class="trainer-header">
+            <h2>Trainer Dashboard</h2>
+            <p style="color: #666; font-size: 13px;">Session: {{ sessionId }} | Teams: {{ teamAName }} vs {{ teamBName }}</p>
+          </div>
+
+          <div class="trainer-controls">
+            <button class="trainer-btn" @click="resolveCurrentRound">
+              ✓ Resolve Round
+            </button>
+            <button class="trainer-btn secondary" @click="advanceToNextRound">
+              → Unlock Next Round
+            </button>
+            <button class="trainer-btn secondary" @click="resetSession">
+              ↻ New Session
+            </button>
+          </div>
+
+          <div class="comparison-grid">
+            <div class="team-summary">
+              <h3>📊 Team A - {{ teamAName }}</h3>
+              <div class="summary-kpi">
+                <span>Cash</span>
+                <span class="summary-kpi-value">{{ teamAState.cash }}%</span>
+              </div>
+              <div class="summary-kpi">
+                <span>Market</span>
+                <span class="summary-kpi-value">{{ teamAState.market }}%</span>
+              </div>
+              <div class="summary-kpi">
+                <span>Supply</span>
+                <span class="summary-kpi-value">{{ teamAState.supply }}%</span>
+              </div>
+              <div class="summary-kpi">
+                <span>Disruption</span>
+                <span class="summary-kpi-value">{{ teamAState.disruption }}%</span>
+              </div>
+            </div>
+
+            <div class="team-summary">
+              <h3>📊 Team B - {{ teamBName }}</h3>
+              <div class="summary-kpi">
+                <span>Cash</span>
+                <span class="summary-kpi-value">{{ teamBState.cash }}%</span>
+              </div>
+              <div class="summary-kpi">
+                <span>Market</span>
+                <span class="summary-kpi-value">{{ teamBState.market }}%</span>
+              </div>
+              <div class="summary-kpi">
+                <span>Supply</span>
+                <span class="summary-kpi-value">{{ teamBState.supply }}%</span>
+              </div>
+              <div class="summary-kpi">
+                <span>Disruption</span>
+                <span class="summary-kpi-value">{{ teamBState.disruption }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+      
+      setup() {
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwqGu0D1nbc1xAXFPPle5I-DmoDF5MuQqAhUilgEqoF74lt1_QvgqgSr0eZdXJipb2N/exec';
+        const BASE_URL = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+        
+        // Parse URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        const paramSession = urlParams.get('session');
+        const paramTeam = urlParams.get('team');
+        const paramRole = urlParams.get('role');
+        
+        console.log('URL Params:', { session: paramSession, team: paramTeam, role: paramRole });
+        
+        // Determine initial screen
+        let initialScreen = 'setup'; // Default to setup
+        
+        if (paramSession) {
+          // Has session - show game
+          if (paramRole === 'trainer') {
+            initialScreen = 'game-trainer';
+          } else if (paramTeam === 'A' || paramTeam === 'B') {
+            initialScreen = 'game-team';
+          }
+        }
+        
+        const currentScreen = ref(initialScreen);
+        const sessionId = ref(paramSession || '');
+        const userTeam = ref(paramTeam || 'A');
+        
+        // Session setup
+        const setupTeamAName = ref('');
+        const setupTeamBName = ref('');
+        const setupStatus = ref(null);
+        const isCreatingSession = ref(false);
+        const copiedURL = ref('');
+        
+        // Game state
+        const teamAName = ref('Team A');
+        const teamBName = ref('Team B');
+        const currentYear = ref(1);
+        const currentSemester = ref(1);
+        const selectedDecision = ref(null);
+        const isSubmitting = ref(false);
+        const decisionSubmitted = ref(false);
+        const submissionStatus = ref(null);
+        
+        const currentState = reactive({
+          cash: 50,
+          market: 50,
+          supply: 50,
+          disruption: 50
+        });
+        
+        const teamAState = reactive({
+          cash: 50,
+          market: 50,
+          supply: 50,
+          disruption: 50
+        });
+        
+        const teamBState = reactive({
+          cash: 50,
+          market: 50,
+          supply: 50,
+          disruption: 50
+        });
+        
+        const teamAUrl = computed(() => {
+          return `${BASE_URL}?session=${sessionId.value}&team=A`;
+        });
+        
+        const teamBUrl = computed(() => {
+          return `${BASE_URL}?session=${sessionId.value}&team=B`;
+        });
+        
+        const trainerUrl = computed(() => {
+          return `${BASE_URL}?session=${sessionId.value}&role=trainer`;
+        });
+        
+        // Methods
+        const createSession = async () => {
+          if (!setupTeamAName.value || !setupTeamBName.value) return;
+          
+          isCreatingSession.value = true;
+          setupStatus.value = { type: 'loading', message: '⏳ Creating session...' };
+          
+          try {
+            const newSessionId = 'SES-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+            
+            const response = await fetch(APPS_SCRIPT_URL + '?action=create_session&sessionId=' + encodeURIComponent(newSessionId) + '&teamAName=' + encodeURIComponent(setupTeamAName.value) + '&teamBName=' + encodeURIComponent(setupTeamBName.value) + '&trainerEmail=' + encodeURIComponent('orangebusinesscampus@gmail.com'));
+            
+            const data = await response.json();
+            
+            if (data.success) {
+              sessionId.value = newSessionId;
+              teamAName.value = setupTeamAName.value;
+              teamBName.value = setupTeamBName.value;
+              setupStatus.value = { type: 'success', message: '✓ Session created!' };
+              
+              setTimeout(() => {
+                currentScreen.value = 'urls';
+              }, 800);
+            } else {
+              setupStatus.value = { type: 'error', message: '❌ ' + data.data };
+            }
+          } catch (error) {
+            setupStatus.value = { type: 'error', message: '❌ ' + error.toString() };
+          }
+          
+          isCreatingSession.value = false;
+        };
+        
+        const copyToClipboard = async (text, id) => {
+          try {
+            await navigator.clipboard.writeText(text);
+            copiedURL.value = id;
+            setTimeout(() => { copiedURL.value = ''; }, 2000);
+          } catch (err) {
+            alert('Copy manually: ' + text);
+          }
+        };
+        
+        const proceedToDashboard = () => {
+          currentScreen.value = 'game-trainer';
+        };
+        
+        const submitDecision = async () => {
+          if (!selectedDecision.value || decisionSubmitted.value) return;
+          
+          isSubmitting.value = true;
+          submissionStatus.value = { type: 'waiting', message: '⏳ Submitting...' };
+          
+          try {
+            const response = await fetch(APPS_SCRIPT_URL + '?action=submit_decision&sessionId=' + encodeURIComponent(sessionId.value) + '&teamName=' + encodeURIComponent(userTeam.value) + '&year=' + currentYear.value + '&semester=' + currentSemester.value + '&decision=' + encodeURIComponent(selectedDecision.value));
+            
+            const data = await response.json();
+            
+            if (data.success) {
+              submissionStatus.value = { type: 'locked', message: '🔒 Decision locked!' };
+              decisionSubmitted.value = true;
+            } else {
+              submissionStatus.value = { type: 'error', message: '❌ ' + data.data };
+            }
+          } catch (error) {
+            submissionStatus.value = { type: 'error', message: '❌ ' + error.toString() };
+          }
+          
+          isSubmitting.value = false;
+        };
+        
+        const resolveCurrentRound = async () => {
+          try {
+            const response = await fetch(APPS_SCRIPT_URL + '?action=resolve_semester&sessionId=' + encodeURIComponent(sessionId.value) + '&year=' + currentYear.value + '&semester=' + currentSemester.value);
+            
+            const data = await response.json();
+            
+            if (data.success) {
+              teamAState.cash = data.data.teamA.result.cash;
+              teamAState.market = data.data.teamA.result.market;
+              teamAState.supply = data.data.teamA.result.supply;
+              teamAState.disruption = data.data.teamA.result.disruption;
+              
+              teamBState.cash = data.data.teamB.result.cash;
+              teamBState.market = data.data.teamB.result.market;
+              teamBState.supply = data.data.teamB.result.supply;
+              teamBState.disruption = data.data.teamB.result.disruption;
+            }
+          } catch (error) {
+            console.error('Error:', error);
+          }
+        };
+        
+        const advanceToNextRound = () => {
+          if (currentSemester.value === 2) {
+            currentYear.value += 1;
+            currentSemester.value = 1;
+          } else {
+            currentSemester.value = 2;
+          }
+          selectedDecision.value = null;
+          decisionSubmitted.value = false;
+        };
+        
+        const resetSession = () => {
+          currentScreen.value = 'setup';
+          sessionId.value = '';
+          setupTeamAName.value = '';
+          setupTeamBName.value = '';
+        };
+        
+        return {
+          currentScreen,
+          sessionId,
+          userTeam,
+          setupTeamAName,
+          setupTeamBName,
+          setupStatus,
+          isCreatingSession,
+          copiedURL,
+          teamAName,
+          teamBName,
+          teamAUrl,
+          teamBUrl,
+          trainerUrl,
+          currentYear,
+          currentSemester,
+          selectedDecision,
+          isSubmitting,
+          decisionSubmitted,
+          submissionStatus,
+          currentState,
+          teamAState,
+          teamBState,
+          createSession,
+          copyToClipboard,
+          proceedToDashboard,
+          submitDecision,
+          resolveCurrentRound,
+          advanceToNextRound,
+          resetSession
+        };
+      }
+    });
+
+    app.mount('#app');
+  </script>
+</body>
+</html>
