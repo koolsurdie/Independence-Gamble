@@ -1,0 +1,248 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Busy Is Not Growing</title>
+<style>
+@font-face{font-family:Caveat;src:url(fonts/caveat-latin-700-normal.woff2);font-weight:700}
+@font-face{font-family:Kalam;src:url(fonts/kalam-latin-700-normal.woff2);font-weight:700}
+@font-face{font-family:Kalam;src:url(fonts/kalam-latin-400-normal.woff2);font-weight:400}
+:root{--navy:#0F1B2D;--amber:#FFB300;--amberInk:#E89A00;--paper:#FBF6EA;--grey:#8C94A1}
+html,body{margin:0;width:540px;height:960px;overflow:hidden;background:var(--paper)}
+#stage{position:relative;width:540px;height:960px;overflow:hidden;background:
+  radial-gradient(ellipse at 50% 42%, rgba(255,255,255,.6), rgba(255,255,255,0) 62%),
+  repeating-linear-gradient(0deg, transparent 0 37px, rgba(15,27,45,.055) 37px 38px), var(--paper)}
+#stage::before{content:"";position:absolute;top:0;bottom:0;left:34px;width:2px;background:rgba(232,154,0,.28)}
+.vign{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(90,65,20,.13));pointer-events:none;z-index:5}
+.scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:120px 60px 250px 50px;box-sizing:border-box;gap:8px;color:var(--navy);visibility:hidden}
+.grp{display:flex;flex-direction:column;gap:6px;align-items:center}
+.grp.start{align-items:flex-start}
+.grp.row{flex-direction:row;align-items:center;gap:16px}
+.sp{height:var(--h,18px)}
+.ln{display:inline-block;white-space:nowrap;position:relative;line-height:1.15}
+.h1{font:700 92px/1 Caveat}
+.h2{font:700 60px/1.05 Caveat}
+.b{font:700 31px/1.3 Kalam}
+.s{font:400 26px/1.3 Kalam}
+.tag{font:700 36px/1 Caveat;color:var(--amberInk);letter-spacing:1px}
+.grey{color:var(--grey)}
+.indent{padding-left:44px}
+.t-sp,.t-hl{position:relative;display:inline-block}
+.t-hl{background:linear-gradient(var(--amber),var(--amber)) no-repeat 0 85%/calc(var(--hp,0)*100%) 52%;border-radius:6px;padding:0 6px;margin:0 -6px}
+.ic{display:inline-block;vertical-align:middle;position:relative;margin-right:14px;top:-2px}
+svg{overflow:visible;position:absolute;left:0;top:0}
+.drawbox{position:relative;display:block}
+path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+#pen{position:absolute;left:0;top:0;width:160px;height:160px;z-index:10;filter:drop-shadow(4px 8px 5px rgba(15,27,45,.22))}
+</style></head>
+<body>
+<div id="stage"><div class="vign"></div>
+<svg id="pen" viewBox="-80 -140 160 160" width="160" height="160">
+  <g transform="rotate(28)">
+    <polygon points="0,0 -8,-21 8,-21" fill="#F1D3A6"/>
+    <polygon points="0,0 -3,-8 3,-8" fill="#0F1B2D"/>
+    <rect x="-8" y="-110" width="16" height="89" fill="#FFB300"/>
+    <rect x="-8" y="-110" width="5" height="89" fill="#FFCB4D"/>
+    <rect x="3" y="-110" width="5" height="89" fill="#E09A00"/>
+    <rect x="-8" y="-122" width="16" height="12" fill="#B9C0CA"/>
+    <rect x="-8" y="-136" width="16" height="15" rx="3" fill="#0F1B2D"/>
+  </g>
+</svg>
+</div>
+<script>
+const NAVY='#0F1B2D', AMB='#F0A500', GREY='#8C94A1';
+// ---------- SCRIPT CONTENT ----------
+// text markup: [word] = amber highlighter, {word} = target for a doodle (spans counted in order)
+const SC=[
+ {hold:1.3, items:[
+   {t:'text',cls:'b',s:'You took the course.'},
+   {t:'text',cls:'b',s:'You got the certificate.'},
+   {t:'space',h:26},
+   {t:'text',cls:'h2',s:'So why does nothing'},
+   {t:'text',cls:'h2',s:'feel {different?}',dd:[{k:'circle',span:0}]},
+ ]},
+ {hold:1.2, items:[
+   {t:'text',cls:'h1',s:'BUSY'},
+   {t:'draw',name:'neq'},
+   {t:'text',cls:'h1',s:'GROWING',dd:[{k:'underline2'}]},
+ ]},
+ {hold:1.7, items:[
+   {t:'text',cls:'b',s:"The world isn't waiting."},
+   {t:'text',cls:'b',s:'Skills are changing'},
+   {t:'text',cls:'b',s:'[faster than ever.]',dd:[{k:'hl',span:0}]},
+   {t:'space',h:30},
+   {t:'text',cls:'h2',s:'The old you'},
+   {t:'text',cls:'h2',s:"won't get you {there.}",dd:[{k:'underline',span:0}]},
+ ]},
+ {hold:2.1, items:[
+   {t:'draw',name:'bulb'},
+   {t:'text',cls:'tag',s:'Step 1'},
+   {t:'text',cls:'h1',s:'MINDSET',dd:[{k:'underline'}]},
+   {t:'space',h:14},
+   {t:'grp',cls:'start',items:[
+     {t:'text',cls:'b',pre:'arrow',s:'Curiosity'},
+     {t:'text',cls:'s indent',s:'"How does this work?"'},
+     {t:'text',cls:'b',pre:'arrow',s:'An open mind'},
+     {t:'text',cls:'s indent',s:'be willing to be wrong'},
+     {t:'text',cls:'b',pre:'arrow',s:'Failure = data'},
+     {t:'text',cls:'s indent',s:'not a final judgement'},
+   ]},
+ ]},
+ {hold:1.9, items:[
+   {t:'text',cls:'tag',s:'Step 2'},
+   {t:'text',cls:'h1',s:'LEARN'},
+   {t:'text',cls:'h2',s:'something {new}',dd:[{k:'circle',span:0}]},
+   {t:'space',h:18},
+   {t:'grp',cls:'start',items:[
+     {t:'text',cls:'b',pre:'checkbox',s:'Upskill: go deeper'},
+     {t:'text',cls:'b',pre:'checkbox',s:'Reskill: start fresh'},
+     {t:'text',cls:'b',pre:'checkbox',s:'Get the certification'},
+     {t:'text',cls:'b',pre:'checkbox',s:'Build a side project'},
+     {t:'text',cls:'s indent',s:'just for the experience'},
+   ]},
+ ]},
+ {hold:1.6, items:[
+   {t:'text',cls:'tag',s:'Step 3: the shift'},
+   {t:'space',h:10},
+   {t:'text',cls:'h2',s:"Don't count"},
+   {t:'text',cls:'h2',s:'what you did.'},
+   {t:'space',h:22},
+   {t:'text',cls:'h1',s:'Count what'},
+   {t:'text',cls:'h1',s:'[CHANGED.]',dd:[{k:'hl',span:0}]},
+ ]},
+ {hold:1.9, items:[
+   {t:'grp',cls:'start',items:[
+     {t:'text',cls:'b grey',pre:'cross',s:'I finished a course',dd:[{k:'strike'}]},
+     {t:'text',cls:'b',pre:'check',s:'I cut our reporting'},
+     {t:'text',cls:'b indent',s:'time [in half]',dd:[{k:'hl',span:0}]},
+     {t:'space',h:34},
+     {t:'text',cls:'b grey',pre:'cross',s:'I got certified',dd:[{k:'strike'}]},
+     {t:'text',cls:'b',pre:'check',s:'I led the project'},
+     {t:'text',cls:'b indent',s:'[because I could]',dd:[{k:'hl',span:0}]},
+   ]},
+ ]},
+ {hold:1.6, items:[
+   {t:'text',cls:'h2',s:'Activity = input'},
+   {t:'space',h:20},
+   {t:'text',cls:'h1',s:'Impact ='},
+   {t:'text',cls:'h1',s:'{result}',dd:[{k:'circle',span:0},{k:'underline2',span:0}]},
+ ]},
+ {hold:2.9, items:[
+   {t:'grp',cls:'row',items:[{t:'text',cls:'h2',s:'Save this'},{t:'draw',name:'bookmark'}]},
+   {t:'text',cls:'s',s:'for the next time you feel stuck'},
+   {t:'space',h:34},
+   {t:'grp',cls:'row',items:[{t:'text',cls:'h2',s:'Share it'},{t:'draw',name:'plane'}]},
+   {t:'text',cls:'s',s:'with someone who needs it today'},
+ ]},
+];
+// ---------- DRAWINGS (pixel coordinates) ----------
+const DRAW={
+ neq:{w:130,h:100,stroke:AMB,sw:9,paths:['M14 36 Q65 30 116 34','M14 68 Q65 62 116 66','M86 4 L44 96']},
+ bulb:{w:110,h:118,stroke:NAVY,sw:4,paths:[
+   'M55 14 C30 14 18 34 24 54 C29 68 38 72 40 86 L70 86 C72 72 81 68 86 54 C92 34 80 14 55 14',
+   'M42 96 L68 96','M46 106 L64 106',
+   {d:'M55 -8 L55 2',c:AMB},{d:'M14 8 L22 16',c:AMB},{d:'M96 8 L88 16',c:AMB},{d:'M-4 48 L7 48',c:AMB},{d:'M114 48 L103 48',c:AMB}]},
+ bookmark:{w:44,h:58,stroke:AMB,sw:5,paths:['M8 4 L36 4 L36 54 L22 42 L8 54 Z']},
+ plane:{w:66,h:54,stroke:AMB,sw:4.5,paths:['M4 26 L62 4 L46 50 L30 34 Z','M30 34 L62 4','M30 34 L28 50 L38 40']},
+};
+// ---------- ENGINE ----------
+const stage=document.getElementById('stage'), pen=document.getElementById('pen');
+const NS='http://www.w3.org/2000/svg';
+const SPEED={h1:13,h2:21,b:29,s:36,tag:24};
+let scenes=[], anims=[], TOTAL=0;
+function markup(s){let i=0;return s.replace(/\[(.+?)\]|\{(.+?)\}/g,(m,a,b)=>a!==undefined?`<span class="t-hl" data-k="${i++}">${a}</span>`:`<span class="t-sp" data-k="${i++}">${b}</span>`)}
+function mkSvg(parent,x,y,w,h){const s=document.createElementNS(NS,'svg');s.setAttribute('width',w);s.setAttribute('height',h);
+  s.setAttribute('viewBox',`${x} ${y} ${w} ${h}`);s.style.left=x+'px';s.style.top=y+'px';parent.appendChild(s);return s}
+function mkPath(svg,d,color,sw){const p=document.createElementNS(NS,'path');p.setAttribute('d',d);p.setAttribute('stroke',color);p.setAttribute('stroke-width',sw);svg.appendChild(p);return p}
+function build(items,parent,list){
+  for(const it of items){
+    if(it.t==='grp'){const g=document.createElement('div');g.className='grp '+(it.cls||'');parent.appendChild(g);build(it.items,g,list);continue}
+    if(it.t==='space'){const d=document.createElement('div');d.className='sp';d.style.setProperty('--h',it.h+'px');parent.appendChild(d);continue}
+    if(it.t==='draw'){const D=DRAW[it.name];const box=document.createElement('div');box.className='drawbox';box.style.width=D.w+'px';box.style.height=D.h+'px';parent.appendChild(box);
+      const svg=mkSvg(box,0,0,D.w,D.h);it._paths=D.paths.map(p=>typeof p==='string'?mkPath(svg,p,D.stroke,D.sw):mkPath(svg,p.d,p.c,D.sw));list.push(it);continue}
+    const el=document.createElement('div');el.className='ln '+it.cls;
+    if(it.pre){const ic=document.createElement('span');ic.className='ic';el.appendChild(ic);it._ic=ic}
+    const tx=document.createElement('span');tx.innerHTML=markup(it.s);el.appendChild(tx);
+    parent.appendChild(el);it._el=el;it._tx=tx;list.push(it);
+  }
+}
+function doodlePaths(kind,el){
+  const w=el.offsetWidth,h=el.offsetHeight,pad=40;const svg=mkSvg(el,-pad,-pad,w+2*pad,h+2*pad);const out=[];
+  if(kind==='underline'||kind==='underline2'){out.push(mkPath(svg,`M -4 ${h*.97} Q ${w*.5} ${h*1.07} ${w+6} ${h*.93}`,AMB,5));
+    if(kind==='underline2')out.push(mkPath(svg,`M ${w*.08} ${h*1.1} Q ${w*.55} ${h*1.18} ${w*.96} ${h*1.06}`,AMB,4.5));}
+  if(kind==='circle'){const cx=w/2,cy=h/2,rx=w/2+11,ry=h/2+8;let d='';const a0=-2.5,N=70;
+    for(let i=0;i<=N;i++){const u=i/N,a=a0+u*(Math.PI*2+0.45),f=1+0.025*Math.sin(3*a)+0.07*u;
+      d+=(i?' L ':'M ')+(cx+Math.cos(a)*rx*f).toFixed(1)+' '+(cy+Math.sin(a)*ry*f).toFixed(1)}
+    out.push(mkPath(svg,d,AMB,4.5));}
+  if(kind==='strike')out.push(mkPath(svg,`M -6 ${h*.55} C ${w*.3} ${h*.47}, ${w*.7} ${h*.62}, ${w+6} ${h*.5}`,NAVY,3.5));
+  return out;
+}
+function iconPaths(kind,ic,fs){
+  const s=Math.round(fs*0.8);ic.style.width=s+'px';ic.style.height=s+'px';const svg=mkSvg(ic,0,0,s,s);const P=(d,c,w)=>mkPath(svg,d,c,w);
+  const k=v=>(v*s).toFixed(1);
+  if(kind==='checkbox')return{pre:[P(`M ${k(.08)} ${k(.12)} L ${k(.93)} ${k(.06)} L ${k(.96)} ${k(.92)} L ${k(.06)} ${k(.95)} Z`,NAVY,3.2)],
+     post:[P(`M ${k(.18)} ${k(.5)} L ${k(.44)} ${k(.82)} L ${k(1.1)} ${k(-.15)}`,AMB,5)]};
+  if(kind==='check')return{pre:[P(`M ${k(.05)} ${k(.5)} L ${k(.36)} ${k(.84)} L ${k(.98)} ${k(.02)}`,AMB,5.5)],post:[]};
+  if(kind==='cross')return{pre:[P(`M ${k(.12)} ${k(.12)} L ${k(.88)} ${k(.88)}`,GREY,4.5),P(`M ${k(.88)} ${k(.12)} L ${k(.12)} ${k(.88)}`,GREY,4.5)],post:[]};
+  if(kind==='arrow')return{pre:[P(`M ${k(0)} ${k(.55)} Q ${k(.45)} ${k(.42)} ${k(.9)} ${k(.55)}`,AMB,4.5),P(`M ${k(.58)} ${k(.25)} L ${k(.92)} ${k(.55)} L ${k(.6)} ${k(.85)}`,AMB,4.5)],post:[]};
+}
+function strokeAnim(p,start,dur,sc){const len=p.getTotalLength();p.style.strokeDasharray=len+' '+(len+10);anims.push({kind:'stroke',el:p,len,start,dur,sc});return start+dur}
+function sched(){
+  let t=0;
+  SC.forEach((S,si)=>{
+    const root=scenes[si];let cur=t+0.2;
+    for(const it of S._list){
+      cur+=it.gap!==undefined?it.gap:0.09;
+      if(it.t==='draw'){for(const p of it._paths){cur=strokeAnim(p,cur,Math.max(.14,p.getTotalLength()/520),si)}continue}
+      const fs=parseFloat(getComputedStyle(it._el).fontSize);let ic=null;
+      if(it.pre){ic=iconPaths(it.pre,it._ic,fs);for(const p of ic.pre)cur=strokeAnim(p,cur,.22,si)+.03}
+      const cls=it.cls.split(' ')[0];const n=it.s.replace(/[\[\]{}]/g,'').length;
+      const dur=Math.max(.35,n/(it.speed||SPEED[cls]));anims.push({kind:'write',el:it._tx,start:cur,dur,sc:si});cur+=dur;
+      if(ic)for(const p of ic.post)cur=strokeAnim(p,cur+.05,.26,si);
+      for(const dd of (it.dd||[])){
+        const tgt=dd.span!==undefined?it._tx.querySelector(`[data-k="${dd.span}"]`):it._tx;cur+=.08;
+        if(dd.k==='hl'){anims.push({kind:'hl',el:tgt,start:cur,dur:.42,sc:si});cur+=.42}
+        else for(const p of doodlePaths(dd.k,tgt))cur=strokeAnim(p,cur,dd.k==='circle'?.6:.38,si);
+      }
+    }
+    const end=cur+S.hold+0.45;S._start=t;S._end=end;t=end;
+  });
+  TOTAL=t;
+}
+const clamp=v=>v<0?0:v>1?1:v, ease=u=>u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;
+function penPoint(a,p){
+  if(a.kind==='stroke'){const q=a.el.getPointAtLength(a.len*p);return new DOMPoint(q.x,q.y).matrixTransform(a.el.getScreenCTM())}
+  const r=a.el.getBoundingClientRect();const st=stage.getBoundingClientRect();
+  return {x:r.left-st.left+r.width*p,y:r.top-st.top+r.height*(a.kind==='hl'?.8:.72)+Math.sin(p*r.width/7)*r.height*.1}
+}
+const REST={x:520,y:900};
+function renderAt(t){
+  SC.forEach((S,si)=>{const el=scenes[si];const l=t-S._start,on=t>=S._start&&t<S._end;el.style.visibility=on?'visible':'hidden';
+    const u=clamp((t-(S._end-.45))/.45);el.style.opacity=1-u;el.style.transform=`translateY(${-22*ease(u)}px)`;});
+  for(const a of anims){const p=clamp((t-a.start)/a.dur);
+    if(a.kind==='stroke'){a.el.style.visibility=p>0?'visible':'hidden';a.el.style.strokeDashoffset=a.len*(1-ease(p))}
+    else if(a.kind==='write'){a.el.style.visibility=p>0?'visible':'hidden';a.el.parentNode.style.clipPath=p>=1?'none':`inset(-50% ${(1-p)*100}% -50% -50%)`;
+      // keep icon visible even while text clips: clip only text span
+      a.el.style.clipPath=p>=1?'none':`inset(-60% ${(1-p)*100}% -60% -10%)`;a.el.parentNode.style.clipPath='none'}
+    else if(a.kind==='hl'){a.el.style.setProperty('--hp',ease(p))}}
+  // pen
+  const si=SC.findIndex(S=>t>=S._start&&t<S._end);let pos=REST,lift=1;
+  if(si>=0){const A=anims.filter(a=>a.sc===si);const act=A.find(a=>t>=a.start&&t<a.start+a.dur);
+    if(act){let p=(t-act.start)/act.dur;if(act.kind==='stroke')p=ease(p);pos=penPoint(act,p);
+      if(act.kind==='write'){pos={x:pos.x+Math.sin(t*37)*1.5,y:pos.y+Math.cos(t*53)*2}}}
+    else{const prev=[...A].reverse().find(a=>a.start+a.dur<=t),next=A.find(a=>a.start>t);
+      const Ap=prev?penPoint(prev,1):REST,Bp=next?penPoint(next,0):REST,t0=prev?prev.start+prev.dur:S0(si),t1=next?next.start:SC[si]._end;
+      lift=1.08;
+      if(t1-t0<=1.2){const u=ease(clamp((t-t0)/(t1-t0)));pos={x:Ap.x+(Bp.x-Ap.x)*u,y:Ap.y+(Bp.y-Ap.y)*u-Math.sin(u*Math.PI)*14}}
+      else if(t-t0<.5){const u=ease((t-t0)/.5);pos={x:Ap.x+(REST.x-Ap.x)*u,y:Ap.y+(REST.y-Ap.y)*u}}
+      else if(t1-t<.5){const u=ease(1-(t1-t)/.5);pos={x:REST.x+(Bp.x-REST.x)*u,y:REST.y+(Bp.y-REST.y)*u}}
+      else pos=REST;}}
+  pen.style.transform=`translate(${pos.x-80}px,${pos.y-140}px) scale(${lift})`;pen.style.transformOrigin='80px 140px';
+}
+function S0(si){return SC[si]._start}
+SC.forEach(S=>{const el=document.createElement('div');el.className='scene';stage.insertBefore(el,pen);scenes.push(el);S._list=[];build(S.items,el,S._list)});
+document.fonts.ready.then(()=>{sched();window.TOTAL=TOTAL;
+  window.WRITE=anims.map(a=>[+a.start.toFixed(3),+(a.start+a.dur).toFixed(3),a.kind]);
+  window.SCENES=SC.map(S=>[S._start,S._end]);renderAt(0);window.READY=true;
+  if(location.hash!=='#render'){const t0=performance.now();const loop=()=>{renderAt(((performance.now()-t0)/1000)%TOTAL);requestAnimationFrame(loop)};loop()}});
+window.renderAt=renderAt;
+</script>
+</body></html>
