@@ -146,6 +146,7 @@ const DRAW={
 // ---------- ENGINE ----------
 const stage=document.getElementById('stage'), pen=document.getElementById('pen');
 const NS='http://www.w3.org/2000/svg';
+const VO_LEAD=0.15;
 const SPEED={h1:13,h2:21,b:29,s:36,tag:24};
 let scenes=[], anims=[], TOTAL=0;
 function markup(s){let i=0;return s.replace(/\[(.+?)\]|\{(.+?)\}/g,(m,a,b)=>a!==undefined?`<span class="t-hl" data-k="${i++}">${a}</span>`:`<span class="t-sp" data-k="${i++}">${b}</span>`)}
@@ -203,7 +204,7 @@ function sched(){
         else for(const p of doodlePaths(dd.k,tgt))cur=strokeAnim(p,cur,dd.k==='circle'?.6:.38,si);
       }
     }
-    const end=cur+S.hold+0.45;S._start=t;S._end=end;t=end;
+    const vo=(window.VO||[])[si];const end=Math.max(cur+S.hold+0.45,vo?t+VO_LEAD+vo+0.6:0);S._start=t;S._end=end;t=end;
   });
   TOTAL=t;
 }
